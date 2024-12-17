@@ -266,6 +266,7 @@ public class closeCyclingAuto extends LinearOpMode {
       intakeRight.setPower(1);
       setArmTarget(23);
 
+
    }
 
    public void outtake() {
