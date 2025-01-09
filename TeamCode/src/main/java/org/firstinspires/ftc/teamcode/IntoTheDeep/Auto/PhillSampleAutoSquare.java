@@ -8,6 +8,7 @@ package org.firstinspires.ftc.teamcode.IntoTheDeep.Auto;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -22,6 +23,7 @@ import org.firstinspires.ftc.teamcode.Odometry.SimplifiedOdometryRobot.Simplifie
  */
 
 @Autonomous
+@Disabled
 
 public class PhillSampleAutoSquare extends LinearOpMode {
     // get an instance of the "Robot" class.

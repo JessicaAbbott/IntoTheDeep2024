@@ -7,20 +7,29 @@
 package org.firstinspires.ftc.teamcode.Odometry.SimplifiedOdometryRobot;
 
 import com.acmerobotics.dashboard.config.Config;
+import com.arcrobotics.ftclib.controller.PIDFController;
 import com.arcrobotics.ftclib.controller.wpilibcontroller.SimpleMotorFeedforward;
 import com.arcrobotics.ftclib.drivebase.MecanumDrive;
+import com.arcrobotics.ftclib.geometry.Pose2d;
+import com.arcrobotics.ftclib.geometry.Rotation2d;
+import com.arcrobotics.ftclib.hardware.motors.Motor;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
+import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AngularVelocity;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
+import org.firstinspires.ftc.teamcode.util.MathUtil;
+import org.firstinspires.ftc.teamcode.util.PIDController;
 
 import java.util.List;
 
@@ -34,20 +43,19 @@ public class SimplifiedOdometryRobot {
 
    private static double DRIVE_GAIN          = 0.052;    // Strength of axial position control
    private static final double DRIVE_ACCEL         = 1.2;     // Acceleration limit.  Percent Power change per second.  1.0 = 0-100% power in 1 sec.
-   private static final double DRIVE_TOLERANCE     = 1.0;     // Controller is is "inPosition" if position error is < +/- this amount
+   private static final double DRIVE_TOLERANCE     = 0.5;     // Controller is is "inPosition" if position error is < +/- this amount
    private static final double DRIVE_DEADBAND      = 0.2;     // Error less than this causes zero output.  Must be smaller than DRIVE_TOLERANCE
    private static final double DRIVE_MAX_AUTO      = 0.6;     // "default" Maximum Axial power limit during autonomous
 
    private static double STRAFE_GAIN         = 0.052;    // Strength of lateral position control
    private static final double STRAFE_ACCEL        = 1.1;     // Acceleration limit.  Percent Power change per second.  1.0 = 0-100% power in 1 sec.
-   private static final double STRAFE_TOLERANCE    = 1.0
-   ;     // Controller is is "inPosition" if position error is < +/- this amount
+   private static final double STRAFE_TOLERANCE    = 0.5;     // Controller is is "inPosition" if position error is < +/- this amount
    private static final double STRAFE_DEADBAND     = 0.1;     // Error less than this causes zero output.  Must be smaller than DRIVE_TOLERANCE
    private static final double STRAFE_MAX_AUTO     = 0.6;     // "default" Maximum Lateral power limit during autonomous
 
    private static double YAW_GAIN            = 0.0163;    // Strength of Yaw position control
    private static final double YAW_ACCEL           = 2.4;     // Acceleration limit.  Percent Power change per second.  1.0 = 0-100% power in 1 sec.
-   private static final double YAW_TOLERANCE       = 5;     // Controller is is "inPosition" if position error is < +/- this amount
+   private static final double YAW_TOLERANCE       = 1;     // Controller is is "inPosition" if position error is < +/- this amount
    private static final double YAW_DEADBAND        = 0.25;    // Error less than this causes zero output.  Must be smaller than DRIVE_TOLERANCE
    private static final double YAW_MAX_AUTO        = 0.6;     // "default" Maximum Yaw power limit during autonomous
 
@@ -61,13 +69,37 @@ public class SimplifiedOdometryRobot {
    public ProportionalControl strafeController    = new ProportionalControl(STRAFE_GAIN, STRAFE_ACCEL, STRAFE_MAX_AUTO, STRAFE_TOLERANCE, STRAFE_DEADBAND, false);
    public ProportionalControl yawController       = new ProportionalControl(YAW_GAIN, YAW_ACCEL, YAW_MAX_AUTO, YAW_TOLERANCE,YAW_DEADBAND, true);
 
+   public static double translationKp = 0.25;
+   public static double translationKd = 0.00;
+
+
+   public static double headingKP = 0.8;
+   public static double headingKD = 0.02;
+
+
+   public static double translationPositionTolerance = 0.25;
+   public static double translationVelocityTolerance = 10.0;
+
+    public static double headingVelocityTolerance= 10.0; // i really dont know about this one, if turn is weird fiddle with this
+
+
+
+   //15mm x probably close to zero for y
+   public PIDFController xController = new PIDFController(translationKp, 0.0, 0.00, 0.0);
+   public PIDFController yController = new PIDFController(translationKp, 0.0, 0.00, 0.0);
+   public PIDController headingController = new PIDController(headingKP, 0.00, 0.00);
+
    // ---  Private Members
 
+   SparkFunOTOS odo;
+
+  public SparkFunOTOS.Pose2D pose= new SparkFunOTOS.Pose2D();
+
    // Hardware interface Objects
-   DcMotor LFMotor;     //  control the left front drive wheel
-   DcMotor RFMotor;    //  control the right front drive wheel
-   DcMotor LBMotor;      //  control the left back drive wheel
-   DcMotor RBMotor;     //  control the right back drive wheel
+   public Motor LFMotor;     //  control the left front drive wheel
+   public Motor RFMotor;    //  control the right front drive wheel
+  public  Motor LBMotor;      //  control the left back drive wheel
+   public Motor RBMotor;     //  control the right back drive wheel
 
    MecanumDrive  mecanumDrive;
 
@@ -75,7 +107,7 @@ public class SimplifiedOdometryRobot {
    private DcMotor armExtension2;      //  the Lateral (left/right) Odometry Module (may overlap with motor, or may not)
 
    private LinearOpMode myOpMode;
-   private IMU imu;
+   //private IMU imu;
    private ElapsedTime holdTimer = new ElapsedTime();  // User for any motion requiring a hold time or timeout.
 
    public static double ks = 0.0;
@@ -117,8 +149,20 @@ public class SimplifiedOdometryRobot {
       armExtension2=myOpMode.hardwareMap.get(DcMotor.class,"lateral");
       armExtension1=myOpMode.hardwareMap.get(DcMotor.class,"axial");
 
-      imu = myOpMode.hardwareMap.get(IMU.class, "imu");
+      headingController.enableContinuousInput(-Math.PI, Math.PI);
+      headingController.setTolerance(Math.toRadians(1.0),headingVelocityTolerance);//
+      xController.setTolerance(translationPositionTolerance,translationVelocityTolerance);
+      yController.setTolerance(translationPositionTolerance,translationVelocityTolerance);
 
+      myOpMode.telemetry.addData("x",pose.x);
+      myOpMode.telemetry.addData("y",pose.y);
+      myOpMode.telemetry.addData("h",pose.h);
+      myOpMode.telemetry.update();
+
+      //imu = myOpMode.hardwareMap.get(IMU.class, "imu");
+
+      odo= myOpMode.hardwareMap.get(SparkFunOTOS.class,"odo");
+      configureOtos();
 
       //  Connect to the encoder channels using the name of that channel.
 
@@ -129,34 +173,130 @@ public class SimplifiedOdometryRobot {
       }
 
       // Tell the software how the Control Hub is mounted on the robot to align the IMU XYZ axes correctly
+      /*
       RevHubOrientationOnRobot orientationOnRobot =
       new RevHubOrientationOnRobot(RevHubOrientationOnRobot.LogoFacingDirection.UP,
       RevHubOrientationOnRobot.UsbFacingDirection.FORWARD);
       imu.initialize(new IMU.Parameters(orientationOnRobot));
 
-      mecanumDrive = new MecanumDrive(
+       */
+
+     mecanumDrive = new MecanumDrive(false,
          LFMotor,RFMotor,LBMotor,RBMotor
-      );
+     );
 
       // zero out all the odometry readings.
-      resetOdometry();
+      //resetOdometry();
 
       // Set the desired telemetry state
       this.showTelemetry = showTelemetry;
    }
 
+   private void configureOtos() {
+
+      // Set the desired units for linear and angular measurements. Can be either
+      // meters or inches for linear, and radians or degrees for angular. If not
+      // set, the default is inches and degrees. Note that this setting is not
+      // persisted in the sensor, so you need to set at the start of all your
+      // OpModes if using the non-default value.
+      // myOtos.setLinearUnit(DistanceUnit.METER);
+      odo.setLinearUnit(DistanceUnit.INCH);
+      // myOtos.setAngularUnit(AnguleUnit.RADIANS);
+      odo.setAngularUnit(AngleUnit.DEGREES);
+
+      // Assuming you've mounted your sensor to a robot and it's not centered,
+      // you can specify the offset for the sensor relative to the center of the
+      // robot. The units default to inches and degrees, but if you want to use
+      // different units, specify them before setting the offset! Note that as of
+      // firmware version 1.0, these values will be lost after a power cycle, so
+      // you will need to set them each time you power up the sensor. For example, if
+      // the sensor is mounted 5 inches to the left (negative X) and 10 inches
+      // forward (positive Y) of the center of the robot, and mounted 90 degrees
+      // clockwise (negative rotation) from the robot's orientation, the offset
+      // would be {-5, 10, -90}. These can be any value, even the angle can be
+      // tweaked slightly to compensate for imperfect mounting (eg. 1.3 degrees).
+      //SparkFunOTOS.Pose2D offset = new SparkFunOTOS.Pose2D(0.6578631, 0.5828845, -90.0);
+      SparkFunOTOS.Pose2D offset = new SparkFunOTOS.Pose2D(0.5949, 0.0212, -90.0);
+
+      odo.setOffset(offset);
+
+      // Here we can set the linear and angular scalars, which can compensate for
+      // scaling issues with the sensor measurements. Note that as of firmware
+      // version 1.0, these values will be lost after a power cycle, so you will
+      // need to set them each time you power up the sensor. They can be any value
+      // from 0.872 to 1.127 in increments of 0.001 (0.1%). It is recommended to
+      // first set both scalars to 1.0, then calibrate the angular scalar, then
+      // the linear scalar. To calibrate the angular scalar, spin the robot by
+      // multiple rotations (eg. 10) to get a precise error, then set the scalar
+      // to the inverse of the error. Remember that the angle wraps from -180 to
+      // 180 degrees, so for example, if after 10 rotations counterclockwise
+      // (positive rotation), the sensor reports -15 degrees, the required scalar
+      // would be 3600/3585 = 1.004. To calibrate the linear scalar, move the
+      // robot a known distance and measure the error; do this multiple times at
+      // multiple speeds to get an average, then set the linear scalar to the
+      // inverse of the error. For example, if you move the robot 100 inches and
+      // the sensor reports 103 inches, set the linear scalar to 100/103 = 0.971
+      odo.setLinearScalar(1.0);
+      odo.setAngularScalar(1.0);
+
+      // The IMU on the OTOS includes a gyroscope and accelerometer, which could
+      // have an offset. Note that as of firmware version 1.0, the calibration
+      // will be lost after a power cycle; the OTOS performs a quick calibration
+      // when it powers up, but it is recommended to perform a more thorough
+      // calibration at the start of all your OpModes. Note that the sensor must
+      // be completely stationary and flat during calibration! When calling
+      // calibrateImu(), you can specify the number of samples to take and whether
+      // to wait until the calibration is complete. If no parameters are provided,
+      // it will take 255 samples and wait until done; each sample takes about
+      // 2.4ms, so about 612ms total
+      odo.calibrateImu();
+
+      // Reset the tracking algorithm - this resets the position to the origin,
+      // but can also be used to recover from some rare tracking errors
+      odo.resetTracking();
+
+      // After resetting the tracking, the OTOS will report that the robot is at
+      // the origin. If your robot does not start at the origin, or you have
+      // another source of location information (eg. vision odometry), you can set
+      // the OTOS location to match and it will continue to track from there.
+      SparkFunOTOS.Pose2D currentPosition = new SparkFunOTOS.Pose2D(36, 9, 0);
+      odo.setPosition(currentPosition);
+
+      // Get the hardware and firmware version
+      SparkFunOTOS.Version hwVersion = new SparkFunOTOS.Version();
+      SparkFunOTOS.Version fwVersion = new SparkFunOTOS.Version();
+      odo.getVersionInfo(hwVersion, fwVersion);
+
+   }
    /**
     *   Setup a drive motor with passed parameters.  Ensure encoder is reset.
     * @param deviceName  Text name associated with motor in Robot Configuration
     * @param direction   Desired direction to make the wheel run FORWARD with positive power input
     * @return the DcMotor object
     */
-   private DcMotor setupMotor (String deviceName, DcMotor.Direction direction) {
-      DcMotor aMotor = myOpMode.hardwareMap.get(DcMotor.class, deviceName);
-      aMotor.setDirection(direction);
-      aMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);  // Reset Encoders to zero
-      aMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-      aMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);  // Requires motor encoder cables to be hooked up.
+
+
+   private Motor setupMotor (String deviceName, DcMotor.Direction direction) {
+      Motor aMotor=new Motor(myOpMode.hardwareMap,deviceName);
+      //DcMotor aMotor = myOpMode.hardwareMap.get(DcMotor.class, deviceName);
+      boolean isInverted;
+
+      switch (direction) {
+         case FORWARD:
+            isInverted = false;
+            break;
+         case REVERSE:
+            isInverted = true;
+            break;
+         default:
+            isInverted = false;
+      }
+
+      aMotor.setInverted(isInverted);
+      aMotor.stopAndResetEncoder();
+      aMotor.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
+      aMotor.setRunMode(Motor.RunMode.RawPower);
+
       return aMotor;
    }
 
@@ -167,17 +307,23 @@ public class SimplifiedOdometryRobot {
     * @return true
     */
    public boolean readSensors() {
-      rawDriveOdometer = armExtension1.getCurrentPosition() * (INVERT_DRIVE_ODOMETRY ? -1 : 1);
-      rawStrafeOdometer = armExtension2.getCurrentPosition() * (INVERT_STRAFE_ODOMETRY ? -1 : 1);
-      driveDistance = (rawDriveOdometer - driveOdometerOffset) * ODOM_INCHES_PER_COUNT;
-      strafeDistance = (rawStrafeOdometer - strafeOdometerOffset) * ODOM_INCHES_PER_COUNT;
 
-      YawPitchRollAngles orientation = imu.getRobotYawPitchRollAngles();
-      AngularVelocity angularVelocity = imu.getRobotAngularVelocity(AngleUnit.DEGREES);
+      SparkFunOTOS.Pose2D pos = odo.getPosition();
 
-      rawHeading  = orientation.getYaw(AngleUnit.DEGREES);
+
+      //rawDriveOdometer = armExtension1.getCurrentPosition() * (INVERT_DRIVE_ODOMETRY ? -1 : 1);
+      //rawStrafeOdometer = armExtension2.getCurrentPosition() * (INVERT_STRAFE_ODOMETRY ? -1 : 1);
+      driveDistance = pos.x;
+      strafeDistance = pos.y;
+
+      //YawPitchRollAngles orientation = imu.getRobotYawPitchRollAngles();
+      //AngularVelocity angularVelocity = imu.getRobotAngularVelocity(AngleUnit.DEGREES);
+
+      //rawHeading  = orientation.getYaw(AngleUnit.DEGREES);
+      rawHeading = pos.h;
       heading     = rawHeading - headingOffset;
-      turnRate    = angularVelocity.zRotationRate;
+      pose = new SparkFunOTOS.Pose2D(pos.x, pos.y, heading);
+      //turnRate    = angularVelocity.zRotationRate;
 
       if (showTelemetry) {
          //  myOpMode.telemetry.addData("Odom Ax:Lat", "%6d %6d", rawDriveOdometer - driveOdometerOffset, rawStrafeOdometer - strafeOdometerOffset);
@@ -190,6 +336,55 @@ public class SimplifiedOdometryRobot {
 
    //  ########################  Mid level control functions.  #############################3#
 
+   public void moveToPose (double x, double y, double heading, double power, double turnPower, double holdTime) {
+      //resetOdometry();
+      /*
+      strafeController.reset(x,power);             //  Maintain zero strafe drift
+      driveController.reset(y, power);  // Achieve desired drive distance
+      yawController.reset(heading, turnPower);                          // Maintain last turn angle
+      holdTimer.reset();
+       */
+      SparkFunOTOS.Pose2D currentPose = pose;
+      xController.reset();
+      yController.reset();
+      headingController.reset();
+
+      xController.calculate(currentPose.x, x);
+      yController.calculate(currentPose.y, y);
+      double targetHeading = Rotation2d.fromDegrees(heading).getRadians();
+      headingController.calculate(getRotation().getRadians(), targetHeading);
+
+      while (myOpMode.opModeIsActive() && readSensors()){
+         myOpMode.telemetry.addData("x",pose.x);
+         myOpMode.telemetry.addData("y",pose.y);
+         myOpMode.telemetry.addData("h",pose.h);
+         myOpMode.telemetry.update();
+
+         double xFeedback = xController.calculate(pose.x, x);
+         double yFeedback = yController.calculate(pose.y, y);
+         double headingFeedback = -headingController.calculate(getRotation().getRadians(), targetHeading);
+
+         // implement desired axis powers
+         driveWithFieldCentric(xFeedback, yFeedback, headingFeedback);
+         // Time to exit?
+         if (xController.atSetPoint() && yController.atSetPoint() && headingController.atSetpoint()) {
+            if (holdTimer.time() > 0.15) {
+               stopRobot();
+               //resetHeading();
+               //resetOdometry();
+               break;   // Exit loop if we are in position, and have been there long enough.
+            }
+         }
+         else {
+            holdTimer.reset();
+         }
+         myOpMode.sleep(10);
+      }
+      stopRobot();
+
+   }
+
+
    /**
     * Drive in the axial (forward/reverse) direction, maintain the current heading and don't drift sideways
     * @param distanceInchesY  Distance to travel.  +ve = forward, -ve = reverse.
@@ -198,7 +393,7 @@ public class SimplifiedOdometryRobot {
     * @param holdTime Minimum time (sec) required to hold the final position.  0 = no hold.
     */
    public void move (double distanceInchesY, double distanceInchesX, double power, double holdTime) {
-      resetOdometry();
+      //resetOdometry();
       strafeController.reset(distanceInchesX,power);             //  Maintain zero strafe drift
       driveController.reset(distanceInchesY, power);  // Achieve desired drive distance
       yawController.reset();                          // Maintain last turn angle
@@ -212,8 +407,8 @@ public class SimplifiedOdometryRobot {
          if (driveController.inPosition() && yawController.inPosition() && strafeController.inPosition()) {
             if (holdTimer.time() > 0.15) {
                stopRobot();
-               resetHeading();
-               resetOdometry();
+               //resetHeading();
+               //resetOdometry();
                break;   // Exit loop if we are in position, and have been there long enough.
             }
          }
@@ -232,7 +427,7 @@ public class SimplifiedOdometryRobot {
     * @param holdTime Minimum time (sec) required to hold the final position.  0 = no hold.
     */
    public void strafe(double distanceInchesX, double power, double holdTime) {
-      resetOdometry();
+      //resetOdometry();
       driveController.reset(0.0);             //  Maintain zero drive drift
       strafeController.reset(distanceInchesX, power);  // Achieve desired Strafe distance
       yawController.reset();                          // Maintain last turn angle
@@ -247,8 +442,8 @@ public class SimplifiedOdometryRobot {
          if (strafeController.inPosition() && yawController.inPosition()) {
             if (holdTimer.time() > holdTime) {
                stopRobot();
-               resetHeading();
-               resetOdometry();
+               //resetHeading();
+               //resetOdometry();
                break;   // Exit loop if we are in position, and have been there long enough.
             }
          }
@@ -258,11 +453,11 @@ public class SimplifiedOdometryRobot {
          myOpMode.sleep(10);
       }
       stopRobot();
-      resetHeading();
-      resetOdometry();
+      //resetHeading();
+      //resetOdometry();
    }
    public void drive (double distanceInchesY, double power, double holdTime) {
-      resetOdometry();
+      //resetOdometry();
       driveController.reset(distanceInchesY,power);             //  Maintain zero drive drift
       strafeController.reset(0.0);  // Achieve desired Strafe distance
       yawController.reset();                          // Maintain last turn angle
@@ -277,8 +472,8 @@ public class SimplifiedOdometryRobot {
          if (driveController.inPosition() && yawController.inPosition()) {
             if (holdTimer.time() > holdTime) {
                stopRobot();
-               resetHeading();
-               resetOdometry();
+               //resetHeading();
+               //resetOdometry();
                break;   // Exit loop if we are in position, and have been there long enough.
             }
          }
@@ -288,8 +483,8 @@ public class SimplifiedOdometryRobot {
          myOpMode.sleep(10);
       }
       stopRobot();
-      resetHeading();
-      resetOdometry();
+      //resetHeading();
+      //resetOdometry();
    }
 
    /**
@@ -320,6 +515,12 @@ public class SimplifiedOdometryRobot {
    }
 
    //  ########################  Low level control functions.  ###############################
+
+   public void driveWithFieldCentric(double strafeSpeed, double forwardSpeed, double turnSpeed){
+       mecanumDrive.driveFieldCentric(strafeSpeed, forwardSpeed, turnSpeed, getHeading());
+
+   }
+
 
    /**
     * Drive the wheel motors to obtain the requested axes motions
@@ -361,10 +562,10 @@ public class SimplifiedOdometryRobot {
        */
 
       //send power to the motors
-      LFMotor.setPower(lF);
-      RFMotor.setPower(rF);
-      LBMotor.setPower(lB);
-      RBMotor.setPower(rB);
+      LFMotor.set(lF);
+      RFMotor.set(rF);
+      LBMotor.set(lB);
+      RBMotor.set(rB);
 
 
 
@@ -405,6 +606,8 @@ public class SimplifiedOdometryRobot {
     */
    public void resetOdometry() {
       readSensors();
+      odo.resetTracking();
+      /*
       driveOdometerOffset = rawDriveOdometer;
       driveDistance = 0.0;
       driveController.reset(0);
@@ -412,20 +615,32 @@ public class SimplifiedOdometryRobot {
       strafeOdometerOffset = rawStrafeOdometer;
       strafeDistance = 0.0;
       strafeController.reset(0);
+       */
    }
 
    /**
     * Reset the robot heading to zero degrees, and also lock that heading into heading controller.
     */
    public void resetHeading() {
-      readSensors();
-      headingOffset = rawHeading;
+      //readSensors();
+      headingOffset = (headingOffset + getHeading()-90.0) % 360;
+      //headingOffset = rawHeading;
       yawController.reset(0);
-      heading = 0;
+      //heading = 0;
    }
 
-   public double getHeading() {return heading;}
+   public double getHeading() {return getRotation().getDegrees();}
+
+   public Rotation2d getRotation() {
+      return Rotation2d.fromDegrees(heading);
+   }
    public double getTurnRate() {return turnRate;}
+
+   public void setPos(double x,double y,double heading){
+      headingOffset=0;
+      odo.setPosition(new SparkFunOTOS.Pose2D(x,y,heading));
+      readSensors();
+   }
 
    /**
     * Set the drive telemetry on or off

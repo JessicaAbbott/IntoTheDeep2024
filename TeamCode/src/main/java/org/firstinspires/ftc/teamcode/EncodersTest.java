@@ -4,16 +4,20 @@ import android.icu.text.MeasureFormat;
 import android.icu.util.MeasureUnit;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
 @Autonomous
+@Disabled
+
 public class EncodersTest extends LinearOpMode {
 
    DcMotor axial;
    DcMotor lateral;
 
    @Override
+
    public void runOpMode()  {
 
       axial = hardwareMap.get(DcMotor.class, "axial");
