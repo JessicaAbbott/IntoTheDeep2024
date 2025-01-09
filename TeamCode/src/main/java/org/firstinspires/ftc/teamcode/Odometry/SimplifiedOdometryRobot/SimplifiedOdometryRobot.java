@@ -70,7 +70,7 @@ public class SimplifiedOdometryRobot {
    public ProportionalControl yawController       = new ProportionalControl(YAW_GAIN, YAW_ACCEL, YAW_MAX_AUTO, YAW_TOLERANCE,YAW_DEADBAND, true);
 
    public static double translationKp = 0.25;
-   public static double translationKd = 0.00;
+   public static double translationKd = 0.001;
 
 
    public static double headingKP = 0.8;
