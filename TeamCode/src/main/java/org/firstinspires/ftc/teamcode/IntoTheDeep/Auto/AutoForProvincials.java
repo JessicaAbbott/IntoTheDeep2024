@@ -172,7 +172,6 @@ public class AutoForProvincials extends LinearOpMode {
 
          // sample four, (close to wall)
 
-
          // position to pick up sample close to wall ( may have to do some maneuvering to actually get this one)
          robot.moveToPose(12,18,135,1.0,1.0,0.1);
 

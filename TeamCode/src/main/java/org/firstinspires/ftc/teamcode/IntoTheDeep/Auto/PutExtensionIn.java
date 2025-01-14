@@ -19,7 +19,7 @@ public class PutExtensionIn extends OpMode {
 
 
       armExtension2 = hardwareMap.get(DcMotor.class, "armExtension");
-      armExtension2.setDirection(DcMotorSimple.Direction.REVERSE);
+      armExtension2.setDirection(DcMotorSimple.Direction.FORWARD);
       armExtension2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
    }

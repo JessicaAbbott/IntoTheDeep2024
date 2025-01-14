@@ -77,10 +77,10 @@ public class TeleForProvincials extends LinearOpMode {
       armExtension1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
       intakeLeft = hardwareMap.get(CRServo.class, "intakeLeft");
-      intakeLeft.setDirection(CRServo.Direction.FORWARD);
+      intakeLeft.setDirection(CRServo.Direction.REVERSE);
 
       intakeRight = hardwareMap.get(CRServo.class, "intakeRight");
-      intakeRight.setDirection(CRServo.Direction.REVERSE);
+      intakeRight.setDirection(CRServo.Direction.FORWARD);
 
       intakeServo = hardwareMap.get(Servo.class, "intakeServo");
 
@@ -104,7 +104,7 @@ public class TeleForProvincials extends LinearOpMode {
       while (opModeInInit()) {
          robot.readSensors();
          telemetry.update();
-      }
+       }
 
       while (opModeIsActive()) {
          robot.readSensors();
@@ -146,18 +146,19 @@ public class TeleForProvincials extends LinearOpMode {
             newTarget = 129;
 
          } else if (gamepad2.dpad_down) {
-            target = -26;  // all the way down and in tucked pos for climb
-            newTarget = -26;
+
+            target = 35;  //ideally hight just below specimen hugh bar for  specimen hooking
+            newTarget = 35;
          } else if (gamepad2.dpad_up) {
-            target = 74;  // high bar for specimens
-            newTarget = 74;
+            target = 56;
+            newTarget = 56;
          } else if (gamepad2.a) {
-            target = 14;
-            newTarget = 14;
+            target = 15;
+            newTarget = 15;
          } else if (gamepad2.dpad_left) {
-            newTarget = target - 5;
+            newTarget = target - 10;
          } else if (gamepad2.dpad_right) {
-            newTarget = target + 5;
+            newTarget = target + 10;
          }
          else {
             target = newTarget;
@@ -166,14 +167,19 @@ public class TeleForProvincials extends LinearOpMode {
          // intake
 
          if (gamepad2.left_bumper) { // out
-            intakeLeft.setPower(-1);
-            intakeRight.setPower(-1);
+            intakeLeft.setPower(-0.9);
+            intakeRight.setPower(-0.9);
          } else if (gamepad2.right_bumper) {
             //continue in and move servo out of way
             intakeServo.setPosition(1.0);
             intakeLeft.setPower(0.6);
             intakeRight.setPower(0.6);
-         } else if (gamepad2.right_trigger > 0) { // in
+         }
+         else if (gamepad2.left_trigger>0){
+            intakeLeft.setPower(1);
+            intakeRight.setPower(1);
+         }
+         else if (gamepad2.right_trigger > 0) { // in
             // down to pick up
             intakeServo.setPosition(0.3);
             intakeLeft.setPower(1);
