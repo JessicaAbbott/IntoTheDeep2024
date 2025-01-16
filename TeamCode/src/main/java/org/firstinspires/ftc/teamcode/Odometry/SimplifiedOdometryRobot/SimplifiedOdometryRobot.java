@@ -73,15 +73,16 @@ public class SimplifiedOdometryRobot {
    public static double translationKd = 0.001;
 
 
-   public static double headingKP = 0.8;
+   public static double headingKP = 0.9;
    public static double headingKD = 0.02;
 
 
-   public static double translationPositionTolerance = 0.25;
+   public static double translationPositionTolerance = 0.75;
    public static double translationVelocityTolerance = 10.0;
 
     public static double headingVelocityTolerance= 10.0; // i really dont know about this one, if turn is weird fiddle with this
 
+   public static double headingPositionTolerance=1.0;
 
 
    //15mm x probably close to zero for y
@@ -150,7 +151,7 @@ public class SimplifiedOdometryRobot {
       armExtension1=myOpMode.hardwareMap.get(DcMotor.class,"axial");
 
       headingController.enableContinuousInput(-Math.PI, Math.PI);
-      headingController.setTolerance(Math.toRadians(1.0),headingVelocityTolerance);//
+      headingController.setTolerance(Math.toRadians(3.0),headingVelocityTolerance);//
       xController.setTolerance(translationPositionTolerance,translationVelocityTolerance);
       yController.setTolerance(translationPositionTolerance,translationVelocityTolerance);
 

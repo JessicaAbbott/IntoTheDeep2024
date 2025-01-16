@@ -14,12 +14,12 @@ public class PutExtensionIn extends OpMode {
    public void init() {
 
       armExtension1 = hardwareMap.get(DcMotor.class, "lateral");
-      armExtension1.setDirection(DcMotorSimple.Direction.REVERSE);
+      armExtension1.setDirection(DcMotorSimple.Direction.FORWARD);
       armExtension1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
 
       armExtension2 = hardwareMap.get(DcMotor.class, "armExtension");
-      armExtension2.setDirection(DcMotorSimple.Direction.FORWARD);
+      armExtension2.setDirection(DcMotorSimple.Direction.REVERSE);
       armExtension2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
    }
