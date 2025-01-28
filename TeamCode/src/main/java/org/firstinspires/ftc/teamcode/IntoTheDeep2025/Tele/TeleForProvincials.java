@@ -17,7 +17,7 @@ import org.firstinspires.ftc.teamcode.Odometry.SimplifiedOdometryRobot.Simplifie
 
 @TeleOp
 @Config
-public class TeleForProvincials extends LinearOpMode {
+public class TeleForProvincials extends LinearOpMode{
 
    public CRServo intakeLeft;
    public CRServo intakeRight;
@@ -117,6 +117,7 @@ public class TeleForProvincials extends LinearOpMode {
             //robot.resetOdometry();
          }
           */
+
 
          if (gamepad1.a) {
             //robot.setPos(36,9,0);
@@ -220,28 +221,7 @@ public class TeleForProvincials extends LinearOpMode {
          // climb
 
 
-         if (gamepad1.y){
-            climbServo.setPosition(0.5);
-          }
 
-         else if(gamepad1.a){
-            climbServo.setPosition(1.0);
-
-
-         }
-
-
-
-
-
-         else if(climbServoPressed=false) {
-            climbServo.setPosition(0.3);
-         }
-
-
-         if (gamepad1.x) {
-            climbButtonPressed = true;
-         }
 
          // climb
          if (gamepad1.left_trigger>0){
@@ -252,13 +232,37 @@ public class TeleForProvincials extends LinearOpMode {
             climbHook.setPower(-1);
          }
 
-         else if (climbButtonPressed=true){
-            climbHook.setPower(0.2);
+
+
+         // climb servo position tests
+
+         if (gamepad1.y){
+            climbServo.setPosition(0.65);// perfect away position
+          }
+
+         else if(gamepad1.a){
+            climbServo.setPosition(0.275);// this is the perfect down position
          }
 
-         else {
-            climbHook.setPower(0);
+
+        // climb automation button
+
+         if (gamepad1.x) {
+            climbButtonPressed = true;
          }
+
+         else{
+           climbButtonPressed=false;
+         }
+
+
+         //climb automation
+
+         if(climbButtonPressed=true){
+
+         }
+
+
 
          double currentLF = robot.LFMotor.getCurrentPosition() * 0.0012186958;
          double currentLB = robot.LBMotor.getCurrentPosition() * 0.0012186958;

@@ -25,31 +25,8 @@ public class IntakeTest extends OpMode {
    public void loop() {
 
 
-      // INTAKE
-
-      if (gamepad2.left_bumper) { // out
-         intakeLeft.setPower(-1);
-         intakeRight.setPower(-1);
-      }
-      else if(gamepad2.right_bumper) {
-         //continue in and move servo out of way
-         intakeServo.setPosition(0.7);
-         intakeLeft.setPower(0.8);
-         intakeRight.setPower(0.8);
-      }
-      else if (gamepad2.right_trigger>0) { // in
-         // down to pick up
-         intakeServo.setPosition(0.3d);
-
-         intakeLeft.setPower(1);
-         intakeRight.setPower(1);
-      }
-
-      else{
-         intakeServo.setPosition(0.3d);
-         intakeRight.setPower(0);
-         intakeLeft.setPower(0);
-      }
+      intakeLeft.setPower(0.8);
+      intakeRight.setPower(0.8);
 
    }
 }
