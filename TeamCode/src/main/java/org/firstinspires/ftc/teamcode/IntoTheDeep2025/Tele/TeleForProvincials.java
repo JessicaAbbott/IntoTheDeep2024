@@ -210,20 +210,21 @@ public class TeleForProvincials extends LinearOpMode{
          if (gamepad2.left_stick_y < 0) {
             armExtension1.setPower(1);
             armExtension2.setPower(1);
-         } else if (gamepad2.left_stick_y > 0) {
+         }
+
+         else if (gamepad2.left_stick_y > 0) {
             armExtension1.setPower(-1);
             armExtension2.setPower(-1);
-         } else {
+         }
+
+         else {
             armExtension1.setPower(0);
             armExtension2.setPower(0);
          }
 
-         // climb
 
+         // climbHook
 
-
-
-         // climb
          if (gamepad1.left_trigger>0){
             //down
             climbHook.setPower(1);
@@ -231,8 +232,6 @@ public class TeleForProvincials extends LinearOpMode{
             //up
             climbHook.setPower(-1);
          }
-
-
 
          // climb servo position tests
 
@@ -254,7 +253,6 @@ public class TeleForProvincials extends LinearOpMode{
          else{
            climbButtonPressed=false;
          }
-
 
          //climb automation
 

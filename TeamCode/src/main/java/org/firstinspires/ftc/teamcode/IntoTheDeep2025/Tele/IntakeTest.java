@@ -11,6 +11,8 @@ public class IntakeTest extends OpMode {
    public CRServo intakeRight;
    public Servo intakeServo;
 
+
+
 @Override
    public void init(){
    intakeLeft=hardwareMap.get(CRServo.class,"intakeLeft");
@@ -25,8 +27,8 @@ public class IntakeTest extends OpMode {
    public void loop() {
 
 
-      intakeLeft.setPower(0.8);
-      intakeRight.setPower(0.8);
+      intakeLeft.setPower(1.0);
+      intakeRight.setPower(1.0);
 
    }
 }

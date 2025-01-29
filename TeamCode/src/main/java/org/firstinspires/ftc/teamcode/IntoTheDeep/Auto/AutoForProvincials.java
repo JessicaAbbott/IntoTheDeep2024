@@ -103,7 +103,7 @@ public class AutoForProvincials extends LinearOpMode {
 
 
          // to high basket to place preloaded sample and stop extension
-         robot.moveToPose(16, 14, 20, 1.0, 1.0, 0.1);
+         robot.moveToPose(13, 16, 40, 1.0, 1.0, 0.1);
          armExtension2.setPower(0);
          armExtension1.setPower(0);
 
@@ -302,8 +302,3 @@ public class AutoForProvincials extends LinearOpMode {
       waitForArmToReachTarget();
    }
 }
-
-
-
-
-
