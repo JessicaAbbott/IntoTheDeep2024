@@ -38,11 +38,9 @@ public class TeleForProvincials extends LinearOpMode{
    private final double ticks_in_degree = 8192 / 360.0;  // Encoder ticks per degree
 
    private DcMotorEx armPivot;
-   private double target = 40;  // Initial target position for the arm
+   private double target = 0;  // Initial target position for the arm
 
    double newTarget = 0;
-   DcMotor armExtension1;
-   public DcMotor armExtension2;
 
    final double SAFE_DRIVE_SPEED = 1.0;
    final double SAFE_STRAFE_SPEED = 1.0;
@@ -59,6 +57,8 @@ public class TeleForProvincials extends LinearOpMode{
    private double lastRF = 0.0;
    private double lastRB = 0.0;
 
+    private DcMotorEx armExtension1;
+   private DcMotorEx armExtension2;
 
    SimplifiedOdometryRobot robot = new SimplifiedOdometryRobot(this);
 
@@ -67,25 +67,15 @@ public class TeleForProvincials extends LinearOpMode{
 
       telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
 
-      armExtension2 = hardwareMap.get(DcMotor.class, "lateral");
-      armExtension2.setDirection(DcMotorSimple.Direction.REVERSE);
-      armExtension2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-
-
-      armExtension1 = hardwareMap.get(DcMotor.class, "armExtension");
-      armExtension1.setDirection(DcMotorSimple.Direction.FORWARD);
-      armExtension1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-
       intakeLeft = hardwareMap.get(CRServo.class, "intakeLeft");
-      intakeLeft.setDirection(CRServo.Direction.REVERSE);
+      intakeLeft.setDirection(CRServo.Direction.FORWARD);
 
       intakeRight = hardwareMap.get(CRServo.class, "intakeRight");
-      intakeRight.setDirection(CRServo.Direction.FORWARD);
+      intakeRight.setDirection(CRServo.Direction.REVERSE);
 
       intakeServo = hardwareMap.get(Servo.class, "intakeServo");
 
       climbServo = hardwareMap.get(Servo.class, "climbServo");
-
 
       armController = new PIDController(p, i, d);
       telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
@@ -94,6 +84,15 @@ public class TeleForProvincials extends LinearOpMode{
       armPivot.setDirection(DcMotorSimple.Direction.REVERSE);
       armPivot.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
       armPivot.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+      armExtension1=hardwareMap.get(DcMotorEx.class,"armExtension");
+      armExtension1.setDirection(DcMotorSimple.Direction.FORWARD);
+       armExtension1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+
+      armExtension2=hardwareMap.get(DcMotorEx.class,"lateral");
+      armExtension2.setDirection(DcMotorSimple.Direction.REVERSE);
+       armExtension2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
       climbHook = hardwareMap.get(DcMotor.class, "axial");
       climbHook.setDirection(DcMotorSimple.Direction.FORWARD);
@@ -109,14 +108,6 @@ public class TeleForProvincials extends LinearOpMode{
       while (opModeIsActive()) {
          robot.readSensors();
          long currentTime = System.nanoTime();
-
-         // Allow the driver to reset the gyro by pressing both small gamepad buttons
-         /*
-         if (gamepad1.options && gamepad1.share) {
-            robot.resetHeading();
-            //robot.resetOdometry();
-         }
-          */
 
 
          if (gamepad1.a) {
@@ -148,7 +139,7 @@ public class TeleForProvincials extends LinearOpMode{
 
          } else if (gamepad2.dpad_down) {
 
-            target = 35;  //ideally hight just below specimen hugh bar for  specimen hooking
+            target = 35;  //ideally height just below specimen hugh bar for  specimen hooking
             newTarget = 35;
          } else if (gamepad2.dpad_up) {
             target = 56;
@@ -180,31 +171,19 @@ public class TeleForProvincials extends LinearOpMode{
             intakeLeft.setPower(1);
             intakeRight.setPower(1);
          }
-         else if (gamepad2.right_trigger > 0) { // in
-            // down to pick up
+         else if (gamepad2.right_trigger > 0) { //
+            // in// down to pick up
             intakeServo.setPosition(0.3);
             intakeLeft.setPower(1);
             intakeRight.setPower(1);
-            target = 0;
+            target = 2;
          }
 
          else {
-            intakeServo.setPosition(0.3d);
+            intakeServo.setPosition(0.3);
             intakeRight.setPower(0);
             intakeLeft.setPower(0);
          }
-
-
-         // PID control for the arm pivot
-         double armPos = -armPivot.getCurrentPosition() / ticks_in_degree;  // Convert encoder ticks to degrees
-         double pidOutput = armController.calculate(armPos, target);  // Calculate PID output
-         double ff = Math.cos(Math.toRadians(target)) * f;  // Feedforward term
-         double power = pidOutput + ff;  // Final motor power (PID + Feedforward)
-
-         power = Math.max(-0.4, Math.min(1.75, power));
-
-
-         armPivot.setPower(power);  // Set motor power to the calculated value
 
          // Arm extension control
          if (gamepad2.left_stick_y < 0) {
@@ -222,7 +201,6 @@ public class TeleForProvincials extends LinearOpMode{
             armExtension2.setPower(0);
          }
 
-
          // climbHook
 
          if (gamepad1.left_trigger>0){
@@ -239,27 +217,36 @@ public class TeleForProvincials extends LinearOpMode{
             climbServo.setPosition(0.65);// perfect away position
           }
 
-         else if(gamepad1.a){
-            climbServo.setPosition(0.275);// this is the perfect down position
-         }
-
-
         // climb automation button
-
-         if (gamepad1.x) {
-            climbButtonPressed = true;
-         }
-
-         else{
-           climbButtonPressed=false;
+         if (gamepad1.x){
+            climbButtonPressed=true;
          }
 
          //climb automation
 
          if(climbButtonPressed=true){
 
+            extensionIn();
+            target=160;
+            newTarget=160;
+            servoOut();
+            firstAscent();
+            hookToL3();
+            ClimbHookRelease();
+            fullRetraction();
+            target=-23;
+            holdPosition();
          }
 
+         // PID control for the arm pivot
+         double armPos = -armPivot.getCurrentPosition() / ticks_in_degree;  // Convert encoder ticks to degrees
+         double armPidOutput = armController.calculate(armPos, target);  // Calculate PID output
+         double armff = Math.cos(Math.toRadians(target)) * f;  // Feedforward term
+         double armPower = armPidOutput + armff;  // Final motor armPower (PID + Feedforward)
+
+         armPower = Math.max(-0.4, Math.min(1.75, armPower));
+
+         armPivot.setPower(armPower);  // Set motor armPower to the calculated value
 
 
          double currentLF = robot.LFMotor.getCurrentPosition() * 0.0012186958;
@@ -270,13 +257,13 @@ public class TeleForProvincials extends LinearOpMode{
 
          telemetry.addData("ArmPos", armPos);
          telemetry.addData("ArmTarget", target);
-         telemetry.addData("PID Output", pidOutput);
-         telemetry.addData("Motor Power", power);
+         telemetry.addData("PID Output", armPidOutput);
+         telemetry.addData("Motor armPower", armPower);
 
          telemetry.addData("x",robot.pose.x);
          telemetry.addData("y",robot.pose.y);
          telemetry.addData("h",robot.pose.h);
-         //telemetry.addData("heading",robot.getHeading());
+         telemetry.addData("heading",robot.getHeading());
 
          telemetry.addData("ms", (currentTime-lastTime)/1E6);
          telemetry.addData("lf", (currentLF-lastLF)/loopTime);
@@ -284,8 +271,64 @@ public class TeleForProvincials extends LinearOpMode{
          telemetry.addData("lf", (currentLB-lastLB)/loopTime);
          telemetry.addData("lf", (currentRB-lastRB)/loopTime);
          telemetry.update();
-         lastTime = currentTime;
-         lastLF = currentLF;
+          lastLF = currentLF;
+
+         telemetry.update();
       }
    }
+
+   public void extensionIn(){
+
+      armExtension2.setPower(-1);
+      armExtension1.setPower(-1);
+      sleep(700);
+      armExtension2.setPower(0);
+      armExtension1.setPower(0);
+   }
+
+   public void servoOut(){
+
+      climbServo.setPosition(0.275);// this is the perfect down position
+   }
+
+   public void firstAscent(){
+      climbHook.setPower(-1);
+      sleep(400);
+      climbHook.setPower(-0.1);
+
+   }
+   public void hookToL3(){
+
+      armExtension1.setPower(1);// extend
+      armExtension2.setPower(1);
+      sleep(600); // pause until extension complete
+      armExtension1.setPower(-1);// wind back until hook is secure
+      armExtension2.setPower(-1);
+      sleep(350);
+      armExtension1.setPower(0);
+      armExtension2.setPower(0);
+
+   }
+
+   public void ClimbHookRelease(){
+
+      climbHook.setPower(1);
+      sleep(300);
+
+   }
+
+   public void fullRetraction(){
+      armExtension1.setPower(-1);
+      armExtension2.setPower(-1);
+      sleep(300);
+      armExtension1.setPower(0);
+      armExtension2.setPower(0);
+
+
+   }
+
+   public void holdPosition(){
+      sleep(10000000);
+   }
+
 }
