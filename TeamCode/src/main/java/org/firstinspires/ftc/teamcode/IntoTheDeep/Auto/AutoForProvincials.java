@@ -31,9 +31,7 @@ public class AutoForProvincials extends LinearOpMode {
    public static double f = 0.1; // Feedforward value for holding against gravity
    private final double ticks_in_degree = 8192 / 360;
 
-   double close = 0.3;
-   double open = 0.7;
-   double target = 0;
+     double target = 0;
    private DcMotorEx armPivot;
 
    double highBasket = 145;
@@ -55,10 +53,10 @@ public class AutoForProvincials extends LinearOpMode {
       robot.initialize(true);
 
       intakeLeft = hardwareMap.get(CRServo.class, "intakeLeft");
-      intakeLeft.setDirection(CRServo.Direction.REVERSE);
+      intakeLeft.setDirection(CRServo.Direction.FORWARD);
 
       intakeRight = hardwareMap.get(CRServo.class, "intakeRight");
-      intakeRight.setDirection(CRServo.Direction.FORWARD);
+      intakeRight.setDirection(CRServo.Direction.REVERSE);
 
       intakeServo = hardwareMap.get(Servo.class, "intakeServo");
 
@@ -82,7 +80,6 @@ public class AutoForProvincials extends LinearOpMode {
       telemetry.addData(">", "Touch Play to run Auto");
       telemetry.update();
 
-      robot.setPos(36, 9, 0);
 
       waitForStart();
       //robot.resetHeading();
@@ -93,7 +90,7 @@ public class AutoForProvincials extends LinearOpMode {
 
          // sample one, preloaded
 
-         intakeServo.setPosition(close);
+         intakeServo.setPosition(0.5);
          armExtension1.setPower(1);
          armExtension2.setPower(1);
          //bring arm to initial resting position and extend arm
@@ -115,10 +112,9 @@ public class AutoForProvincials extends LinearOpMode {
 
 
          // put sample 1 in high basket
-         intakeServo.setPosition(open);
-         intakeLeft.setPower(0.8);
-         intakeRight.setPower(0.8);
-         sleep(300);
+         intakeServo.setPosition(0.8);
+         outtake();
+         sleep(400);
 
          // arm back to resting position and then stop intake
          setArmTarget(45);
@@ -130,7 +126,7 @@ public class AutoForProvincials extends LinearOpMode {
 
 
          // position to pick up farthest sample from wall
-         robot.moveToPose(19.5, 19, 92, 1.0, 1.0, 0.1);
+         robot.moveToPose(19, 19, 92, 1.0, 1.0, 0.1);
 
 
          // intake on, arm down, arm back up, stop intake
@@ -150,9 +146,8 @@ public class AutoForProvincials extends LinearOpMode {
          waitForArmToReachTarget();
 
          // outtake sample 2
-         intakeServo.setPosition(open);
-         intakeLeft.setPower(0.8);
-         intakeRight.setPower(0.8);
+         intakeServo.setPosition(0.8);
+         outtake();
          sleep(400);
 
 
@@ -185,7 +180,9 @@ public class AutoForProvincials extends LinearOpMode {
          waitForArmToReachTarget();
 
           //outtake sample 3
+         intakeServo.setPosition(0.8);
          outtake();
+         sleep(400);
 
          // arm back to resting position and intake off
          setArmTarget(45);
@@ -199,7 +196,6 @@ public class AutoForProvincials extends LinearOpMode {
 
          // position to pick up sample close to wall ( may have to do some maneuvering to actually get this one)
          robot.moveToPose(4,20,100,1.0,1.0,0.1);
-
 
          // intake on, arm down, arm back up, stop intake
          intake();
@@ -217,24 +213,29 @@ public class AutoForProvincials extends LinearOpMode {
          waitForArmToReachTarget();
 
          // outtake sample 4
+         intakeServo.setPosition(0.8);
          outtake();
+         sleep(400);
 
          // arm back  to resting position, and intake off
          setArmTarget(30);
          runArmPID();
          waitForArmToReachTarget();
 
-
          // park and load sample 5
 
+         /*
          //park
-         robot.moveToPose(20,60,90,1.0,1.0,0.1);
 
-         // make sure that arm stays here instead of rising
-         setArmTarget(30);
+         setArmTarget(32);
          runArmPID();
          waitForArmToReachTarget();
          stopIntake();
+
+         robot.moveToPose(20,60,90,1.0,1.0,0.1);
+
+         // make sure that arm stays here instead of rising
+
 
 
          robot.moveToPose(42,60,0,1.0,1.0,0.1);
@@ -245,21 +246,24 @@ public class AutoForProvincials extends LinearOpMode {
          runArmPID();
          waitForArmToReachTarget();
          stopIntake();
+
+          */
       }
    }
 
    private void stopIntake() {
-      intakeLeft.setPower(0);
-      intakeRight.setPower(0);
+     // intakeLeft.setPower(0);
+     // intakeRight.setPower(0);
+      intakeServo.setPosition(0.5);
    }
 
    private void outtake() {
-      intakeServo.setPosition(open);
-      intakeLeft.setPower(0.8);
-      intakeRight.setPower(0.8);
+      intakeServo.setPosition(0.8);
+      sleep(200);
+      intakeLeft.setPower(1.0); // 0.8 for not spitting but 1.0 maybe stop jam
+      intakeRight.setPower(1.0);
       sleep(400);
    }
-
 
    public void runArmPID() {
       double armPos = -armPivot.getCurrentPosition() / ticks_in_degree;
@@ -267,7 +271,7 @@ public class AutoForProvincials extends LinearOpMode {
       double ff = Math.cos(Math.toRadians(armPos)) * f;
       double power = pidOutput + ff;
 
-      power = Math.max(-0.4, Math.min(1.0, power));
+      power = Math.max(-0.3, Math.min(1.0, power));
 
       armPivot.setPower(power);
 
@@ -294,11 +298,12 @@ public class AutoForProvincials extends LinearOpMode {
    }
 
    public void intake() {
-      intakeServo.setPosition(close);
+      intakeServo.setPosition(0.5);
       intakeLeft.setPower(1);
       intakeRight.setPower(1);
-      setArmTarget(23);
+      setArmTarget(25);
       runArmPID();
       waitForArmToReachTarget();
+
    }
 }

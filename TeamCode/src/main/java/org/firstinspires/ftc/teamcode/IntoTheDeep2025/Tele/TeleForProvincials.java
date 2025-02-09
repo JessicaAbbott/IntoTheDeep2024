@@ -173,7 +173,7 @@ public class TeleForProvincials extends LinearOpMode{
          }
          else if (gamepad2.right_trigger > 0) { //
             // in// down to pick up
-            intakeServo.setPosition(0.3);
+            intakeServo.setPosition(0.5); // this is changed so it will ideally not jam
             intakeLeft.setPower(1);
             intakeRight.setPower(1);
             target = 2;
@@ -221,9 +221,12 @@ public class TeleForProvincials extends LinearOpMode{
          if (gamepad1.x){
             climbButtonPressed=true;
          }
+         else{
+            climbButtonPressed=false;
+         }
 
          //climb automation
-
+/*
          if(climbButtonPressed=true){
 
             extensionIn();
@@ -238,7 +241,8 @@ public class TeleForProvincials extends LinearOpMode{
             holdPosition();
          }
 
-         // PID control for the arm pivot
+ */
+
          double armPos = -armPivot.getCurrentPosition() / ticks_in_degree;  // Convert encoder ticks to degrees
          double armPidOutput = armController.calculate(armPos, target);  // Calculate PID output
          double armff = Math.cos(Math.toRadians(target)) * f;  // Feedforward term
@@ -247,7 +251,6 @@ public class TeleForProvincials extends LinearOpMode{
          armPower = Math.max(-0.4, Math.min(1.75, armPower));
 
          armPivot.setPower(armPower);  // Set motor armPower to the calculated value
-
 
          double currentLF = robot.LFMotor.getCurrentPosition() * 0.0012186958;
          double currentLB = robot.LBMotor.getCurrentPosition() * 0.0012186958;
@@ -270,15 +273,13 @@ public class TeleForProvincials extends LinearOpMode{
          telemetry.addData("lb", (currentRF-lastRF)/loopTime);
          telemetry.addData("lf", (currentLB-lastLB)/loopTime);
          telemetry.addData("lf", (currentRB-lastRB)/loopTime);
-         telemetry.update();
-          lastLF = currentLF;
+         lastLF = currentLF;
 
          telemetry.update();
       }
    }
 
    public void extensionIn(){
-
       armExtension2.setPower(-1);
       armExtension1.setPower(-1);
       sleep(700);
@@ -287,7 +288,6 @@ public class TeleForProvincials extends LinearOpMode{
    }
 
    public void servoOut(){
-
       climbServo.setPosition(0.275);// this is the perfect down position
    }
 
@@ -295,10 +295,8 @@ public class TeleForProvincials extends LinearOpMode{
       climbHook.setPower(-1);
       sleep(400);
       climbHook.setPower(-0.1);
-
    }
    public void hookToL3(){
-
       armExtension1.setPower(1);// extend
       armExtension2.setPower(1);
       sleep(600); // pause until extension complete
@@ -307,14 +305,11 @@ public class TeleForProvincials extends LinearOpMode{
       sleep(350);
       armExtension1.setPower(0);
       armExtension2.setPower(0);
-
    }
 
    public void ClimbHookRelease(){
-
       climbHook.setPower(1);
       sleep(300);
-
    }
 
    public void fullRetraction(){
@@ -323,12 +318,9 @@ public class TeleForProvincials extends LinearOpMode{
       sleep(300);
       armExtension1.setPower(0);
       armExtension2.setPower(0);
-
-
    }
 
    public void holdPosition(){
       sleep(10000000);
    }
-
 }
