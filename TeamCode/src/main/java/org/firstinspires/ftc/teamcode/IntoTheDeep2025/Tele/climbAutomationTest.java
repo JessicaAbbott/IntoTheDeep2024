@@ -93,22 +93,25 @@ public class climbAutomationTest extends LinearOpMode {
          delay(800);
          setArmTarget(138);
          runArmPID();
-         //waitForArmToReachTarget();
+         waitForArmToReachTarget();
          fullExtension();
-         delay(1100);
+         delay(2500);
          climbServo.setPosition(0.275);
          stopExtension();
          delay(400);
          firstAscent(); // get it to pull up a bit farther so that the hook can get over
-         delay(1000);
          climbHook.setPower(0.2);
          setArmTarget(142);
          runArmPID();
          fullExtension();
-         delay(1100);
-        // retractToHook();
-         //sleep(800);
+         delay(1000);
+         stopExtension();
+         retractToHook();
+         sleep(2000);
+         stopExtension();
          //ClimbHookRelease();
+        // retractToHook();
+        // sleep(3000);
          //fullRetraction();
          holdPosition();
          stop();
@@ -132,6 +135,7 @@ public class climbAutomationTest extends LinearOpMode {
       armExtension2.setPower(-1);
       armExtension1.setPower(-1);
       climbHook.setPower(0);
+      sleep(800);
    }
 
    public void stopExtension(){
@@ -152,6 +156,7 @@ public class climbAutomationTest extends LinearOpMode {
       climbHook.setPower(1.0);
       setArmTarget(157);
       runArmPID();
+      delay(1100);
    }
 
     public void fullExtension(){
@@ -177,13 +182,13 @@ public class climbAutomationTest extends LinearOpMode {
       armExtension2.setPower(-1);
       setArmTarget(-23);
       runArmPID();
-      sleep(300);
+      sleep(1000);
       armExtension1.setPower(0);
       armExtension2.setPower(0);
    }
 
    public void holdPosition() {
-      sleep(10000000);
+      sleep(1000000000);
    }
 
    public void runArmPID() {

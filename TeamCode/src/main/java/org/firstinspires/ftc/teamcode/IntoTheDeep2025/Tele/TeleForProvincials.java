@@ -32,7 +32,7 @@ public class TeleForProvincials extends LinearOpMode{
    boolean climbServoPressed = false;
 
    // PID constants
-   public static double p = 0.052, i = 0.02, d = 0.001;  // Tuning constants for PID controller
+   public static double p = 0.027, i = 0.0, d = 0.002;  // Tuning constants for PID controller
    public static double f = 0.1;  // Feedforward constant
 
    private final double ticks_in_degree = 8192 / 360.0;  // Encoder ticks per degree
@@ -134,8 +134,8 @@ public class TeleForProvincials extends LinearOpMode{
             target = 84; // low basket pos
             newTarget = 84;
          } else if (gamepad2.y) {
-            target = 129;
-            newTarget = 129;
+            target = 127;
+            newTarget = 127;
 
          } else if (gamepad2.dpad_down) {
 
@@ -180,7 +180,7 @@ public class TeleForProvincials extends LinearOpMode{
          }
 
          else {
-            intakeServo.setPosition(0.3);
+            intakeServo.setPosition(0.5);
             intakeRight.setPower(0);
             intakeLeft.setPower(0);
          }
@@ -248,7 +248,7 @@ public class TeleForProvincials extends LinearOpMode{
          double armff = Math.cos(Math.toRadians(target)) * f;  // Feedforward term
          double armPower = armPidOutput + armff;  // Final motor armPower (PID + Feedforward)
 
-         armPower = Math.max(-0.4, Math.min(1.75, armPower));
+         armPower = Math.max(-0.4, Math.min(1.5, armPower));
 
          armPivot.setPower(armPower);  // Set motor armPower to the calculated value
 

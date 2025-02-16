@@ -124,7 +124,6 @@ public class AutoForProvincials extends LinearOpMode {
 
          // sample two ( far from wall)
 
-
          // position to pick up farthest sample from wall
          robot.moveToPose(19, 19, 92, 1.0, 1.0, 0.1);
 
@@ -236,8 +235,6 @@ public class AutoForProvincials extends LinearOpMode {
 
          // make sure that arm stays here instead of rising
 
-
-
          robot.moveToPose(42,60,0,1.0,1.0,0.1);
 
          //  attempt to pick up another sample
@@ -246,7 +243,6 @@ public class AutoForProvincials extends LinearOpMode {
          runArmPID();
          waitForArmToReachTarget();
          stopIntake();
-
           */
       }
    }
@@ -271,7 +267,7 @@ public class AutoForProvincials extends LinearOpMode {
       double ff = Math.cos(Math.toRadians(armPos)) * f;
       double power = pidOutput + ff;
 
-      power = Math.max(-0.3, Math.min(1.0, power));
+      power = Math.max(-0.4, Math.min(1.0, power));
 
       armPivot.setPower(power);
 
