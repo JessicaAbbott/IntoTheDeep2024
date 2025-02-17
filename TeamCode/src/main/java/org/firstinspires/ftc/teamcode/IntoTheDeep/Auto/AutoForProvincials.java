@@ -11,6 +11,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Odometry.SimplifiedOdometryRobot.SimplifiedOdometryRobot;
 
@@ -31,12 +32,15 @@ public class AutoForProvincials extends LinearOpMode {
    public static double f = 0.1; // Feedforward value for holding against gravity
    private final double ticks_in_degree = 8192 / 360;
 
-     double target = 0;
+   double target = 0;
    private DcMotorEx armPivot;
 
    double highBasket = 145;
 
    double rest = 45;
+
+   private ElapsedTime timer = new ElapsedTime();  // Create a timer
+
 
    @Override
    public void runOpMode() {
@@ -100,10 +104,10 @@ public class AutoForProvincials extends LinearOpMode {
 
 
          // to high basket to place preloaded sample and stop extension
+
          robot.moveToPose(13, 16, 40, 1.0, 1.0, 0.1);
          armExtension2.setPower(0);
          armExtension1.setPower(0);
-
 
          // bring it up to high basket
          setArmTarget(highBasket);
@@ -114,10 +118,9 @@ public class AutoForProvincials extends LinearOpMode {
          // put sample 1 in high basket
          intakeServo.setPosition(0.8);
          outtake();
-         sleep(400);
 
          // arm back to resting position and then stop intake
-         setArmTarget(45);
+         setArmTarget(rest);
          runArmPID();
          waitForArmToReachTarget();
          stopIntake();
@@ -130,7 +133,7 @@ public class AutoForProvincials extends LinearOpMode {
 
          // intake on, arm down, arm back up, stop intake
          intake();
-         setArmTarget(45);
+         setArmTarget(rest);
          runArmPID();
          waitForArmToReachTarget();
 
@@ -147,11 +150,10 @@ public class AutoForProvincials extends LinearOpMode {
          // outtake sample 2
          intakeServo.setPosition(0.8);
          outtake();
-         sleep(400);
 
 
          // arm back to resting position and intake off
-         setArmTarget(45);
+         setArmTarget(rest);
          runArmPID();
          waitForArmToReachTarget();
          stopIntake();
@@ -161,11 +163,11 @@ public class AutoForProvincials extends LinearOpMode {
 
 
          // position to pick up middle sample from wall
-         robot.moveToPose(9,18.75,90,1.0,1.0,0.1);
+         robot.moveToPose(8,18.75,90,1.0,1.0,0.1);
 
          // intake on, arm down, arm back up, stop intake
          intake();
-         setArmTarget(45);
+         setArmTarget(rest);
          runArmPID();
          waitForArmToReachTarget();
 
@@ -178,13 +180,12 @@ public class AutoForProvincials extends LinearOpMode {
          runArmPID();
          waitForArmToReachTarget();
 
-          //outtake sample 3
+         //outtake sample 3
          intakeServo.setPosition(0.8);
          outtake();
-         sleep(400);
 
          // arm back to resting position and intake off
-         setArmTarget(45);
+         setArmTarget(rest);
          runArmPID();
          waitForArmToReachTarget();
          stopIntake();
@@ -214,7 +215,6 @@ public class AutoForProvincials extends LinearOpMode {
          // outtake sample 4
          intakeServo.setPosition(0.8);
          outtake();
-         sleep(400);
 
          // arm back  to resting position, and intake off
          setArmTarget(30);
@@ -235,6 +235,8 @@ public class AutoForProvincials extends LinearOpMode {
 
          // make sure that arm stays here instead of rising
 
+
+
          robot.moveToPose(42,60,0,1.0,1.0,0.1);
 
          //  attempt to pick up another sample
@@ -243,22 +245,23 @@ public class AutoForProvincials extends LinearOpMode {
          runArmPID();
          waitForArmToReachTarget();
          stopIntake();
+
           */
       }
    }
 
    private void stopIntake() {
-     // intakeLeft.setPower(0);
-     // intakeRight.setPower(0);
+      intakeLeft.setPower(0);
+      intakeRight.setPower(0);
       intakeServo.setPosition(0.5);
    }
 
    private void outtake() {
       intakeServo.setPosition(0.8);
-      sleep(200);
+      waitFor(200);
       intakeLeft.setPower(1.0); // 0.8 for not spitting but 1.0 maybe stop jam
       intakeRight.setPower(1.0);
-      sleep(400);
+       waitFor(200);
    }
 
    public void runArmPID() {
@@ -267,7 +270,7 @@ public class AutoForProvincials extends LinearOpMode {
       double ff = Math.cos(Math.toRadians(armPos)) * f;
       double power = pidOutput + ff;
 
-      power = Math.max(-0.4, Math.min(1.0, power));
+      power = Math.max(-0.3, Math.min(1.0, power));
 
       armPivot.setPower(power);
 
@@ -284,13 +287,14 @@ public class AutoForProvincials extends LinearOpMode {
 
    public void waitForArmToReachTarget() {
       double armPos = -armPivot.getCurrentPosition() / ticks_in_degree;
-      while (Math.abs(armPos - target) > 1) {
+      while (Math.abs(armPos - target) > 5) {
          runArmPID();
          armPos = -armPivot.getCurrentPosition() / ticks_in_degree;
          telemetry.update();
       }
       runArmPID();
       telemetry.addData("Arm reached target", target);
+      telemetry.update();
    }
 
    public void intake() {
@@ -300,6 +304,14 @@ public class AutoForProvincials extends LinearOpMode {
       setArmTarget(25);
       runArmPID();
       waitForArmToReachTarget();
+   }
 
+   public void waitFor(long milliseconds){
+
+         timer.reset();  // Reset the timer
+         while (opModeIsActive() && timer.milliseconds() < milliseconds) {
+            runArmPID();  // Keep PID running
+            telemetry.update();  // Keep telemetry updating
+         }
    }
 }

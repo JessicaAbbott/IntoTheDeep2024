@@ -62,6 +62,9 @@ public class TeleForProvincials extends LinearOpMode{
 
    SimplifiedOdometryRobot robot = new SimplifiedOdometryRobot(this);
 
+   private ElapsedTime timer = new ElapsedTime();  // Create a timer
+
+
    @Override
    public void runOpMode() throws InterruptedException {
 
@@ -213,35 +216,53 @@ public class TeleForProvincials extends LinearOpMode{
 
          // climb servo position tests
 
-         if (gamepad1.y){
-            climbServo.setPosition(0.65);// perfect away position
-          }
+         //if (gamepad1.y){
+         //   climbServo.setPosition(0.65);// perfect away position
+         // }
 
         // climb automation button
          if (gamepad1.x){
             climbButtonPressed=true;
-         }
-         else{
-            climbButtonPressed=false;
+
+            if(climbButtonPressed=true){
+               climbHook.setPower(0);
+               extensionIn();
+               waitFor(800);
+               setArmTarget(138);
+               runArmPID();
+               fullExtension();
+               waitFor(2500);
+               climbServo.setPosition(0.275);
+               stopExtension();
+               waitFor(200);
+               firstAscent(); // get it to pull up a bit farther so that the hook can get over
+               climbHook.setPower(0.2);
+               setArmTarget(142);
+               runArmPID();
+               fullExtension();
+               waitFor(1000);
+               stopExtension();
+               retractToHook();
+               waitFor(2000);
+               stopExtension();
+               ClimbHookRelease();
+
+               setArmTarget(-23);
+               runArmPID();
+
+               fullRetraction();
+               waitFor(6000);
+               holdPosition();
+               stop();
+            }
+
+            else if (gamepad1.options){
+               climbButtonPressed=false;
+               break;
+            }
          }
 
-         //climb automation
-/*
-         if(climbButtonPressed=true){
-
-            extensionIn();
-            target=160;
-            newTarget=160;
-            servoOut();
-            firstAscent();
-            hookToL3();
-            ClimbHookRelease();
-            fullRetraction();
-            target=-23;
-            holdPosition();
-         }
-
- */
+         else {climbButtonPressed=false;}
 
          double armPos = -armPivot.getCurrentPosition() / ticks_in_degree;  // Convert encoder ticks to degrees
          double armPidOutput = armController.calculate(armPos, target);  // Calculate PID output
@@ -279,48 +300,107 @@ public class TeleForProvincials extends LinearOpMode{
       }
    }
 
-   public void extensionIn(){
+   public void extensionIn() {
       armExtension2.setPower(-1);
       armExtension1.setPower(-1);
-      sleep(700);
+      climbHook.setPower(0);
+      waitFor(800);
+      }
+
+   public void stopExtension(){
       armExtension2.setPower(0);
       armExtension1.setPower(0);
    }
 
-   public void servoOut(){
+   public void waitFor(long milliseconds){
+
+      timer.reset();  // Reset the timer
+      while (opModeIsActive() && timer.milliseconds() < milliseconds) {
+         runArmPID();  // Keep PID running
+         telemetry.update();  // Keep telemetry updating
+      }
+   }
+
+   public void servoOut() {
       climbServo.setPosition(0.275);// this is the perfect down position
    }
 
-   public void firstAscent(){
-      climbHook.setPower(-1);
-      sleep(400);
-      climbHook.setPower(-0.1);
+   public void firstAscent() {
+      servoOut();
+      climbHook.setPower(1.0);
+       target=157;
+      newTarget=157;
+      waitFor(1100);
    }
-   public void hookToL3(){
+   public void fullExtension(){
       armExtension1.setPower(1);// extend
       armExtension2.setPower(1);
-      sleep(600); // pause until extension complete
-      armExtension1.setPower(-1);// wind back until hook is secure
-      armExtension2.setPower(-1);
-      sleep(350);
-      armExtension1.setPower(0);
+      waitFor(1100);
+       armExtension1.setPower(0);// stop
       armExtension2.setPower(0);
    }
 
-   public void ClimbHookRelease(){
-      climbHook.setPower(1);
-      sleep(300);
-   }
-
-   public void fullRetraction(){
+   public void retractToHook(){
       armExtension1.setPower(-1);
       armExtension2.setPower(-1);
-      sleep(300);
+   }
+
+   public void ClimbHookRelease() {
+      climbHook.setPower(-1);
+      waitFor(200);
+      climbHook.setPower(0.1);
+   }
+
+   public void fullRetraction() {
+      armExtension1.setPower(-1);
+      armExtension2.setPower(-1);
+      waitFor(2000);
+      setArmTarget(-23);
+      target=-23;
+      newTarget=-23;
+      waitFor(3000);
       armExtension1.setPower(0);
       armExtension2.setPower(0);
    }
 
-   public void holdPosition(){
-      sleep(10000000);
+   public void holdPosition() {
+      waitFor(1000000000);
    }
+
+
+   public void setArmTarget(double newTarget) {
+      target = newTarget;
+   }
+
+   public void runArmPID() {
+      double armPos = -armPivot.getCurrentPosition() / ticks_in_degree;
+      double pidOutput = armController.calculate(armPos, target);
+      double ff = Math.cos(Math.toRadians(armPos)) * f;
+      double power = pidOutput + ff;
+
+      power = Math.max(-0.4, Math.min(1.0, power));
+
+      armPivot.setPower(power);
+
+      telemetry.addData("ArmPos", armPos);
+      telemetry.addData("ArmTarget", target);
+      telemetry.addData("PID Output", pidOutput);
+      telemetry.addData("Feedforward", ff);
+      telemetry.addData("Motor Power", power);
+   }
+
+
+   public void waitForArmToReachTarget() {
+      double armPos = -armPivot.getCurrentPosition() / ticks_in_degree;
+      while (Math.abs(armPos - target) > 5) {
+         runArmPID();
+         armPos = -armPivot.getCurrentPosition() / ticks_in_degree;
+         telemetry.update();
+      }
+      runArmPID();
+      telemetry.addData("Arm reached target", target);
+   }
+
+
+
 }

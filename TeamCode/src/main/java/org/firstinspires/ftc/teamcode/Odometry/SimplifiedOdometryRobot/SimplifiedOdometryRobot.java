@@ -10,25 +10,17 @@ import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.controller.PIDFController;
 import com.arcrobotics.ftclib.controller.wpilibcontroller.SimpleMotorFeedforward;
 import com.arcrobotics.ftclib.drivebase.MecanumDrive;
-import com.arcrobotics.ftclib.geometry.Pose2d;
 import com.arcrobotics.ftclib.geometry.Rotation2d;
 import com.arcrobotics.ftclib.hardware.motors.Motor;
 import com.qualcomm.hardware.lynx.LynxModule;
-import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.hardware.sparkfun.SparkFunOTOS;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.AngularVelocity;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.YawPitchRollAngles;
-import org.firstinspires.ftc.teamcode.util.MathUtil;
 import org.firstinspires.ftc.teamcode.util.PIDController;
 
 import java.util.List;
@@ -80,7 +72,7 @@ public class SimplifiedOdometryRobot {
    public static double translationPositionTolerance = 0.75;
    public static double translationVelocityTolerance = 10.0;
 
-    public static double headingVelocityTolerance= 10.0; // i really dont know about this one, if turn is weird fiddle with this
+   public static double headingVelocityTolerance= 10.0; // i really dont know about this one, if turn is weird fiddle with this
 
    public static double headingPositionTolerance=1.0;
 
@@ -94,12 +86,12 @@ public class SimplifiedOdometryRobot {
 
    SparkFunOTOS odo;
 
-  public SparkFunOTOS.Pose2D pose= new SparkFunOTOS.Pose2D();
+   public SparkFunOTOS.Pose2D pose= new SparkFunOTOS.Pose2D();
 
    // Hardware interface Objects
    public Motor LFMotor;     //  control the left front drive wheel
    public Motor RFMotor;    //  control the right front drive wheel
-  public  Motor LBMotor;      //  control the left back drive wheel
+   public  Motor LBMotor;      //  control the left back drive wheel
    public Motor RBMotor;     //  control the right back drive wheel
 
    MecanumDrive  mecanumDrive;
@@ -182,9 +174,9 @@ public class SimplifiedOdometryRobot {
 
        */
 
-     mecanumDrive = new MecanumDrive(false,
-         LFMotor,RFMotor,LBMotor,RBMotor
-     );
+      mecanumDrive = new MecanumDrive(false,
+      LFMotor,RFMotor,LBMotor,RBMotor
+      );
 
       // zero out all the odometry readings.
       //resetOdometry();
@@ -518,8 +510,7 @@ public class SimplifiedOdometryRobot {
    //  ########################  Low level control functions.  ###############################
 
    public void driveWithFieldCentric(double strafeSpeed, double forwardSpeed, double turnSpeed){
-       mecanumDrive.driveFieldCentric(strafeSpeed, forwardSpeed, turnSpeed, getHeading());
-
+      mecanumDrive.driveFieldCentric(strafeSpeed, forwardSpeed, turnSpeed, getHeading());
    }
 
 
@@ -575,11 +566,11 @@ public class SimplifiedOdometryRobot {
          // myOpMode.telemetry.addData("Wheels lf:rf:lb:rb", "%5.2f %5.2f %5.2f %5.2f", lF, rF, lB, rB);
          //myOpMode.telemetry.update(); //  Assume this is the last thing done in the loop.
 
-        // myOpMode.telemetry.addData("Axial(D)",  driveDistance);
-        // myOpMode.telemetry.addData("Lateral(S)", strafeDistance);
-       //  myOpMode.telemetry.addData("heading(Y)", heading);
+         // myOpMode.telemetry.addData("Axial(D)",  driveDistance);
+         // myOpMode.telemetry.addData("Lateral(S)", strafeDistance);
+         //  myOpMode.telemetry.addData("heading(Y)", heading);
          //myOpMode.telemetry.addData("LFDistance",LFMotor.getCurrentPosition());
-        // myOpMode.telemetry.addData("RFDistance",RFMotor.getCurrentPosition());
+         // myOpMode.telemetry.addData("RFDistance",RFMotor.getCurrentPosition());
          //myOpMode.telemetry.addData("LBDistance",LBMotor.getCurrentPosition());
 
 
@@ -587,7 +578,7 @@ public class SimplifiedOdometryRobot {
          //myOpMode.telemetry.addData("driveController",driveController.getOutput(strafeDistance));
          //myOpMode.telemetry.addData("strafeController",strafeController.getOutput(strafeDistance));
 
-        // myOpMode.telemetry.addData("driveDistance",driveDistance);
+         // myOpMode.telemetry.addData("driveDistance",driveDistance);
          //myOpMode.telemetry.addData("strafeDistance",strafeDistance);
 
 
@@ -763,4 +754,3 @@ public class SimplifiedOdometryRobot {
 
 //****************************************************************************************************
 //****************************************************************************************************
-
