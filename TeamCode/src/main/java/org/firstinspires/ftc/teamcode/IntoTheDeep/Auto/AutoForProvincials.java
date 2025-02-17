@@ -79,7 +79,6 @@ public class AutoForProvincials extends LinearOpMode {
       armPivot.setDirection(DcMotorSimple.Direction.REVERSE);
       armPivot.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
       armPivot.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-      armPivot.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
       telemetry.addData(">", "Touch Play to run Auto");
       telemetry.update();
@@ -98,7 +97,7 @@ public class AutoForProvincials extends LinearOpMode {
          armExtension1.setPower(1);
          armExtension2.setPower(1);
          //bring arm to initial resting position and extend arm
-         setArmTarget(rest);
+         setArmTarget(45);
          runArmPID();
          waitForArmToReachTarget();
 
@@ -120,7 +119,7 @@ public class AutoForProvincials extends LinearOpMode {
          outtake();
 
          // arm back to resting position and then stop intake
-         setArmTarget(rest);
+         setArmTarget(50);
          runArmPID();
          waitForArmToReachTarget();
          stopIntake();
@@ -262,6 +261,8 @@ public class AutoForProvincials extends LinearOpMode {
       intakeLeft.setPower(1.0); // 0.8 for not spitting but 1.0 maybe stop jam
       intakeRight.setPower(1.0);
        waitFor(200);
+
+       runArmPID();
    }
 
    public void runArmPID() {
@@ -270,7 +271,7 @@ public class AutoForProvincials extends LinearOpMode {
       double ff = Math.cos(Math.toRadians(armPos)) * f;
       double power = pidOutput + ff;
 
-      power = Math.max(-0.3, Math.min(1.0, power));
+      power = Math.max(-0.4, Math.min(1.0, power));
 
       armPivot.setPower(power);
 
@@ -279,6 +280,7 @@ public class AutoForProvincials extends LinearOpMode {
       telemetry.addData("PID Output", pidOutput);
       telemetry.addData("Feedforward", ff);
       telemetry.addData("Motor Power", power);
+      telemetry.update();
    }
 
    public void setArmTarget(double newTarget) {

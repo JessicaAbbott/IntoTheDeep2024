@@ -269,7 +269,7 @@ public class TeleForProvincials extends LinearOpMode{
          double armff = Math.cos(Math.toRadians(target)) * f;  // Feedforward term
          double armPower = armPidOutput + armff;  // Final motor armPower (PID + Feedforward)
 
-         armPower = Math.max(-0.4, Math.min(1.5, armPower));
+         armPower = Math.max(-0.4, Math.min(1.75, armPower));
 
          armPivot.setPower(armPower);  // Set motor armPower to the calculated value
 
