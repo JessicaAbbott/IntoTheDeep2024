@@ -32,7 +32,7 @@ public class TeleForProvincials extends LinearOpMode{
    boolean climbServoPressed = false;
 
    // PID constants
-   public static double p = 0.027, i = 0.0, d = 0.002;  // Tuning constants for PID controller
+   public static double p = 0.035, i = 0.0, d = 0.002;  // Tuning constants for PID controller
    public static double f = 0.1;  // Feedforward constant
 
    private final double ticks_in_degree = 8192 / 360.0;  // Encoder ticks per degree
