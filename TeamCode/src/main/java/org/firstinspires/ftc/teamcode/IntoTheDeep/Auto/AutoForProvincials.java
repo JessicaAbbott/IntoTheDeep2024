@@ -28,14 +28,14 @@ public class AutoForProvincials extends LinearOpMode {
    public DcMotor armExtension2;
 
    private PIDController armController;
-   public static double p = 0.1, i = 0.0, d = 0.002;  // Adjust PID constants
+   public static double p = 0.085, i = 0.0, d = 0.002;  // Adjust PID constants
    public static double f = 0.1; // Feedforward value for holding against gravity
    private final double ticks_in_degree = 8192 / 360;
 
    double target = 0;
    private DcMotorEx armPivot;
 
-   double highBasket = 147;
+   double highBasket = 148;
 
 
    private ElapsedTime timer = new ElapsedTime();  // Create a timer
@@ -93,7 +93,7 @@ public class AutoForProvincials extends LinearOpMode {
          // sample one, preloaded
 
 
-         intakeServo.setPosition(0.5);
+         intakeServo.setPosition(0.4);
          armExtension1.setPower(1);
 
          armExtension2.setPower(1);
@@ -104,7 +104,7 @@ public class AutoForProvincials extends LinearOpMode {
 
          // to high basket to place preloaded sample and stop extension
 
-         robot.moveToPose(11, 18, 40, 1.0, 1.0, 0.1);
+         robot.moveToPose(9, 16, 40, 1.0, 1.0, 0.1);
          armExtension2.setPower(0);
          armExtension1.setPower(0);
 
@@ -112,11 +112,12 @@ public class AutoForProvincials extends LinearOpMode {
          setArmTarget(highBasket);
          runArmPID();
          waitForArmToReachTarget();
+         waitFor(100);
 
          // put sample 1 in high basket
          intakeServo.setPosition(0.8);
          outtake();
-         waitFor(500);
+         waitFor(600);
 
          // arm back to resting position and then stop intake
          setArmTarget(56);
@@ -128,28 +129,32 @@ public class AutoForProvincials extends LinearOpMode {
          // sample two ( far from wall)
 
          // position to pick up farthest sample from wall
-         robot.moveToPose(18.5, 19.75, 92, 1.0, 1.0, 0.1);
+         robot.moveToPose(18.0, 19.5, 92, 1.0, 1.0, 0.1);
 
          // intake on, arm down, arm back up, stop intake
          intake();
+         waitFor(200);
          setArmTarget(65);
          runArmPID();
          waitForArmToReachTarget();
+         stopIntake();
 
 
          //position for high basket
-         robot.moveToPose(11, 18, 40, 1.0, 1.0, 0.1);
+         robot.moveToPose(9, 16, 40, 1.0, 1.0, 0.1);
 
 
          // arm up to high basket position
          setArmTarget(highBasket);
          runArmPID();
          waitForArmToReachTarget();
+         waitFor(100);
+
 
          // outtake sample 2
          intakeServo.setPosition(0.8);
          outtake();
-         waitFor(500);
+         waitFor(600);
 
          // arm back to resting position and intake off
          setArmTarget(65);
@@ -161,26 +166,30 @@ public class AutoForProvincials extends LinearOpMode {
          // sample three ( middle from wall)
 
          // position to pick up middle sample from wall
-         robot.moveToPose(7.5,19.75,90,1.0,1.0,0.1);
+         robot.moveToPose(7.5,19.25,90,1.0,1.0,0.1);
 
          // intake on, arm down, arm back up, stop intake
          intake();
+         waitFor(200);
          setArmTarget(65);
          runArmPID();
          waitForArmToReachTarget();
+         stopIntake();
 
          //position for high basket
-         robot.moveToPose(11, 18, 40, 1.0, 1.0, 0.1);
+         robot.moveToPose(9, 16, 40, 1.0, 1.0, 0.1);
 
          // arm up to high basket position
          setArmTarget(highBasket);
          runArmPID();
          waitForArmToReachTarget();
+         waitFor(100);
+
 
          //outtake sample 3
          intakeServo.setPosition(0.8);
          outtake();
-         waitFor(500);
+         waitFor(600);
 
          // arm back to resting position and intake off
          setArmTarget(65);
@@ -192,32 +201,37 @@ public class AutoForProvincials extends LinearOpMode {
          // sample four, (close to wall)
 
          // position to pick up sample close to wall ( may have to do some maneuvering to actually get this one)
-         robot.moveToPose(3,20,106,1.0,1.0,0.1);
+         robot.moveToPose(4.5,20.5,105,1.0,1.0,0.1);
 
          // intake on, arm down, arm back up, stop intake
          intake();
+         waitFor(200);
          setArmTarget(65);
          runArmPID();
          waitForArmToReachTarget();
+         stopIntake();
 
          // position for high basket
-         robot.moveToPose(11, 18, 40, 1.0, 1.0, 0.1);
+         robot.moveToPose(9, 16, 40, 1.0, 1.0, 0.1);
 
 
          // arm up to high basket position
          setArmTarget(highBasket);
          runArmPID();
          waitForArmToReachTarget();
+         waitFor(150);
+
 
          // outtake sample 4
          intakeServo.setPosition(0.8);
          outtake();
-         waitFor(500);
+         waitFor(600);
 
          // arm back  to resting position, and intake off
          setArmTarget(65);
          runArmPID();
          waitForArmToReachTarget();
+         intakeServo.setPosition(0.4);
 
 
          robot.moveToPose(11,18,0,1.0,1.0,0.25);
@@ -250,9 +264,9 @@ public class AutoForProvincials extends LinearOpMode {
    }
 
    private void stopIntake() {
-      //intakeLeft.setPower(0);
-      //intakeRight.setPower(0);
-      intakeServo.setPosition(0.5);
+      intakeLeft.setPower(0);
+      intakeRight.setPower(0);
+      intakeServo.setPosition(0.4);
    }
 
    private void outtake() {
@@ -298,12 +312,14 @@ public class AutoForProvincials extends LinearOpMode {
    }
 
    public void intake() {
-      intakeServo.setPosition(0.5);
+      intakeServo.setPosition(0.4);
       intakeLeft.setPower(1);
       intakeRight.setPower(1);
       setArmTarget(23);
       runArmPID();
       waitForArmToReachTarget();
+      waitFor(100);
+      stopIntake();
    }
 
    public void waitFor(long milliseconds){

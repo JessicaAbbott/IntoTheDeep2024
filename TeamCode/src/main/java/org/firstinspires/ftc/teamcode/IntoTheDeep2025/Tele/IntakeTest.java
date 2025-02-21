@@ -11,9 +11,6 @@ public class IntakeTest extends OpMode {
    public CRServo intakeRight;
    public Servo intakeServo;
 
-
-
-
    @Override
    public void init(){
    intakeLeft=hardwareMap.get(CRServo.class,"intakeLeft");
@@ -27,28 +24,30 @@ public class IntakeTest extends OpMode {
    @Override
    public void loop() {
 
+      if (gamepad2.a){
+         intakeLeft.setPower(1.0);
+
+      } else  {
+         intakeLeft.setPower(0.0);
+
+      }
 
 
-      intakeServo.setPosition(0.7);
-      intakeServo.setPosition(0.2);
-      intakeServo.setPosition(0.2);
-      intakeServo.setPosition(0.7);
-      intakeServo.setPosition(0.2);
-      intakeServo.setPosition(0.7);
-      intakeServo.setPosition(0.2);
-    intakeServo.setPosition(0.7);
-      intakeServo.setPosition(0.2);
-    intakeServo.setPosition(0.7);
-      intakeServo.setPosition(0.2);
-      intakeServo.setPosition(0.7);
-      intakeServo.setPosition(0.2);
-     intakeServo.setPosition(0.7);
-      intakeServo.setPosition(0.2);
-  intakeServo.setPosition(0.7);
-      intakeServo.setPosition(0.2);
-    intakeServo.setPosition(0.7);
-      intakeServo.setPosition(0.2);
+      if (gamepad2.b){
+         intakeRight.setPower(1.0);
 
+      } else  {
+         intakeRight.setPower(0.0);
+
+      }
+
+
+      if (gamepad2.y){
+         intakeServo.setPosition(1.0);
+
+      } else  {
+         intakeServo.setPosition(0.5);
+      }
    }
 
 }

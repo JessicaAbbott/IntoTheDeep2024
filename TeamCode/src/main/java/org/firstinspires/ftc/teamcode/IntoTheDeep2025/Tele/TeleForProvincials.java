@@ -57,7 +57,7 @@ public class TeleForProvincials extends LinearOpMode{
    private double lastRF = 0.0;
    private double lastRB = 0.0;
 
-    private DcMotorEx armExtension1;
+   private DcMotorEx armExtension1;
    private DcMotorEx armExtension2;
 
    SimplifiedOdometryRobot robot = new SimplifiedOdometryRobot(this);
@@ -90,12 +90,12 @@ public class TeleForProvincials extends LinearOpMode{
 
       armExtension1=hardwareMap.get(DcMotorEx.class,"armExtension");
       armExtension1.setDirection(DcMotorSimple.Direction.FORWARD);
-       armExtension1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+      armExtension1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
 
       armExtension2=hardwareMap.get(DcMotorEx.class,"lateral");
       armExtension2.setDirection(DcMotorSimple.Direction.REVERSE);
-       armExtension2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+      armExtension2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
       climbHook = hardwareMap.get(DcMotor.class, "axial");
       climbHook.setDirection(DcMotorSimple.Direction.FORWARD);
@@ -106,7 +106,7 @@ public class TeleForProvincials extends LinearOpMode{
       while (opModeInInit()) {
          robot.readSensors();
          telemetry.update();
-       }
+      }
 
       while (opModeIsActive()) {
          robot.readSensors();
@@ -134,8 +134,8 @@ public class TeleForProvincials extends LinearOpMode{
          // arm
          // Update the arm pivot position using PID control
          if (gamepad2.b) {
-            target = 84; // low basket pos
-            newTarget = 84;
+            target = 104; // low basket pos
+            newTarget = 104;
          } else if (gamepad2.y) {
             target = 127;
             newTarget = 127;
@@ -174,7 +174,7 @@ public class TeleForProvincials extends LinearOpMode{
             intakeLeft.setPower(1);
             intakeRight.setPower(1);
          }
-         else if (gamepad2.right_trigger > 0) { //
+         else if (gamepad2.right_trigger > 0) { //opening when it shoudlnt be, right motor not running
             // in// down to pick up
             intakeServo.setPosition(0.5); // this is changed so it will ideally not jam
             intakeLeft.setPower(1);
@@ -220,7 +220,7 @@ public class TeleForProvincials extends LinearOpMode{
          //   climbServo.setPosition(0.65);// perfect away position
          // }
 
-        // climb automation button
+         // climb automation button
          if (gamepad1.x){
             climbButtonPressed=true;
 
@@ -305,7 +305,7 @@ public class TeleForProvincials extends LinearOpMode{
       armExtension1.setPower(-1);
       climbHook.setPower(0);
       waitFor(800);
-      }
+   }
 
    public void stopExtension(){
       armExtension2.setPower(0);
@@ -328,7 +328,7 @@ public class TeleForProvincials extends LinearOpMode{
    public void firstAscent() {
       servoOut();
       climbHook.setPower(1.0);
-       target=157;
+      target=157;
       newTarget=157;
       waitFor(1100);
    }
@@ -336,7 +336,7 @@ public class TeleForProvincials extends LinearOpMode{
       armExtension1.setPower(1);// extend
       armExtension2.setPower(1);
       waitFor(1100);
-       armExtension1.setPower(0);// stop
+      armExtension1.setPower(0);// stop
       armExtension2.setPower(0);
    }
 
