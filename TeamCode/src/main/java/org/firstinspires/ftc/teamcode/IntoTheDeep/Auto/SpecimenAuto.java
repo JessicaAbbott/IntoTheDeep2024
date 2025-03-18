@@ -17,7 +17,7 @@ import org.firstinspires.ftc.teamcode.Odometry.SimplifiedOdometryRobot.Simplifie
 
 @Autonomous
 @Config
-public class AutoForProvincials extends LinearOpMode {
+public class SpecimenAuto extends LinearOpMode {
 
    private SimplifiedOdometryRobot robot = new SimplifiedOdometryRobot(this);
 
@@ -28,7 +28,7 @@ public class AutoForProvincials extends LinearOpMode {
    public DcMotor armExtension2;
 
    private PIDController armController;
-   public static double p = 0.085, i = 0.0, d = 0.002;  // Adjust PID constants
+   public static double p = 0.1, i = 0.0, d = 0.002;  // Adjust PID constants
    public static double f = 0.1; // Feedforward value for holding against gravity
    private final double ticks_in_degree = 8192 / 360;
 
@@ -68,7 +68,7 @@ public class AutoForProvincials extends LinearOpMode {
       armExtension1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
       armExtension2 = hardwareMap.get(DcMotor.class, "armExtension");
-      armExtension2.setDirection(DcMotorSimple.Direction.REVERSE);
+      armExtension2.setDirection(DcMotorSimple.Direction.FORWARD);
       armExtension2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
       armController = new PIDController(p, i, d);
@@ -82,186 +82,49 @@ public class AutoForProvincials extends LinearOpMode {
       telemetry.addData(">", "Touch Play to run Auto");
       telemetry.update();
 
-
+   while (opModeInInit()) {
       waitForStart();
-      //robot.resetHeading();
-      robot.setPos(36, 9, 0);
+      robot.setPos(72, 10, 90);
+      robot.resetHeading();
       armController.reset();
+   }
 
       if (opModeIsActive()) {
+         robot.setPos(72, 10, 90);
 
-         // sample one, preloaded
 
-         intakeServo.setPosition(0.4);
+         // arm on and up, make sure it is holding intake
+         intakeServo.setPosition(0.2);
+         intakeRight.setPower(0.6);
+         intakeLeft.setPower(0.6);
+
          armExtension1.setPower(1);
          armExtension2.setPower(1);
 
-         //bring arm to initial resting position and extend arm
-         setArmTarget(65);
+         //arm up to high bar
+         setArmTarget(72);
          runArmPID();
          waitForArmToReachTarget();
 
-         // to high basket to place preloaded sample and stop extension
-
-         robot.moveToPose(9, 16, 40, 1.0, 1.0, 0.1);
+         //move to bar, stop extension
+         robot.moveToPose(72,23,90, 1.0, 1.0, 0.1);
          armExtension2.setPower(0);
          armExtension1.setPower(0);
 
-         // bring it up to high basket
-         setArmTarget(highBasket);
-         runArmPID();
-         waitForArmToReachTarget();
-         waitFor(100);
 
-         // put sample 1 in high basket
-         intakeServo.setPosition(0.8);
-         outtake();
-         waitFor(600);
-
-         // arm back to resting position and then stop intake
          setArmTarget(65);
          runArmPID();
          waitForArmToReachTarget();
-         stopIntake();
-         spitOut();
 
+         intakeLeft.setPower(-0.8);
+         intakeRight.setPower(-0.8);
 
-         // sample two ( far from wall)
+         robot.moveToPose(72,20,90,0.2,1.0,0.1);
 
-         // position to pick up farthest sample from wall
-         robot.moveToPose(18.0, 19.25, 92, 1.0, 1.0, 0.1);
-
-         // intake on, arm down, arm back up, stop intake
-         intake();
-         waitFor(200);
-         setArmTarget(65);
+         setArmTarget(45);
          runArmPID();
-         waitForArmToReachTarget();
-         stopIntake();
 
-
-         //position for high basket
-         robot.moveToPose(11, 18, 40, 1.0, 1.0, 0.1);
-
-
-         // arm up to high basket position
-         setArmTarget(highBasket);
-         runArmPID();
-         waitForArmToReachTarget();
-         waitFor(100);
-
-
-         // outtake sample 2
-         intakeServo.setPosition(0.8);
-         outtake();
-         waitFor(600);
-
-         // arm back to resting position and intake off
-         setArmTarget(65);
-         runArmPID();
-         waitForArmToReachTarget();
-         stopIntake();
-         spitOut();
-
-
-         // sample three ( middle from wall)
-
-         // position to pick up middle sample from wall
-         robot.moveToPose(7.5,19.15,90,1.0,1.0,0.1);
-
-         // intake on, arm down, arm back up, stop intake
-         intake();
-         waitFor(200);
-         setArmTarget(65);
-         runArmPID();
-         waitForArmToReachTarget();
-         stopIntake();
-
-         //position for high basket
-         robot.moveToPose(11, 18, 40, 1.0, 1.0, 0.1);
-
-         // arm up to high basket position
-         setArmTarget(highBasket);
-         runArmPID();
-         waitForArmToReachTarget();
-         waitFor(100);
-
-
-         //outtake sample 3
-         intakeServo.setPosition(0.8);
-         outtake();
-         waitFor(600);
-
-         // arm back to resting position and intake off
-         setArmTarget(65);
-         runArmPID();
-         waitForArmToReachTarget();
-         stopIntake();
-         spitOut();
-
-
-         // sample four, (close to wall)
-
-         // position to pick up sample close to wall ( may have to do some maneuvering to actually get this one)
-         robot.moveToPose(4.5,20.25,105,1.0,1.0,0.1);
-
-         // intake on, arm down, arm back up, stop intake
-         intake();
-         waitFor(200);
-         setArmTarget(65);
-         runArmPID();
-         waitForArmToReachTarget();
-         stopIntake();
-
-         // position for high basket
-         robot.moveToPose(11, 18, 40, 1.0, 1.0, 0.1);
-
-
-         // arm up to high basket position
-         setArmTarget(highBasket);
-         runArmPID();
-         waitForArmToReachTarget();
-         waitFor(150);
-
-
-         // outtake sample 4
-         intakeServo.setPosition(0.8);
-         outtake();
-         waitFor(600);
-
-         // arm back  to resting position, and intake off
-         setArmTarget(65);
-         runArmPID();
-         waitForArmToReachTarget();
-         intakeServo.setPosition(0.4);
-
-
-         robot.moveToPose(11,18,0,1.0,1.0,0.25);
-
-         // park and load sample 5
-
-         /*
-         //park
-
-         setArmTarget(32);
-         runArmPID();
-         waitForArmToReachTarget();
-         stopIntake();
-
-         robot.moveToPose(20,60,90,1.0,1.0,0.1);
-
-         // make sure that arm stays here instead of rising
-
-         robot.moveToPose(42,60,0,1.0,1.0,0.1);
-
-         //  attempt to pick up another sample
-         intake();
-         setArmTarget(30);
-         runArmPID();
-         waitForArmToReachTarget();
-         stopIntake();
-
-          */
+         robot.moveToPose(96,10,0,1.0,1.0,0.1);
       }
    }
 
@@ -276,7 +139,7 @@ public class AutoForProvincials extends LinearOpMode {
       waitFor(100);
       intakeLeft.setPower(1.0); // 0.8 for not spitting but 1.0 maybe stop jam
       intakeRight.setPower(1.0);
-     waitFor(400);
+      waitFor(400);
    }
 
    public void runArmPID() {
@@ -285,7 +148,7 @@ public class AutoForProvincials extends LinearOpMode {
       double ff = Math.cos(Math.toRadians(armPos)) * f;
       double power = pidOutput + ff;
 
-      power = Math.max(-1.0, Math.min(1.0, power));
+      power = Math.max(-0.5, Math.min(1.0, power));
 
       armPivot.setPower(power);
 
@@ -326,20 +189,10 @@ public class AutoForProvincials extends LinearOpMode {
 
    public void waitFor(long milliseconds){
 
-         timer.reset();  // Reset the timer
-         while (opModeIsActive() && timer.milliseconds() < milliseconds) {
-            runArmPID();
-            telemetry.update();
-         }
-
-   }
-
-   public void spitOut() {
-      intakeServo.setPosition(0.4);
-      intakeLeft.setPower(-1);
-      intakeRight.setPower(-1);
-      waitFor(300);
-      stopIntake();
-
+      timer.reset();  // Reset the timer
+      while (opModeIsActive() && timer.milliseconds() < milliseconds) {
+         runArmPID();
+         telemetry.update();
+      }
    }
 }

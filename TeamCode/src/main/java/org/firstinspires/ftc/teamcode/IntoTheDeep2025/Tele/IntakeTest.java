@@ -48,6 +48,12 @@ public class IntakeTest extends OpMode {
       } else  {
          intakeServo.setPosition(0.5);
       }
+      intakeRight.setPower(1.0);
+      intakeServo.setPosition(0.5);
+      intakeRight.setPower(1.0);
+
+
+
    }
 
 }

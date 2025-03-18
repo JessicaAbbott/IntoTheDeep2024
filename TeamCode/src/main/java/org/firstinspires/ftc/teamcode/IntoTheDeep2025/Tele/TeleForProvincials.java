@@ -145,6 +145,7 @@ public class TeleForProvincials extends LinearOpMode{
             target = 35;  //ideally height just below specimen hugh bar for  specimen hooking
             newTarget = 35;
          } else if (gamepad2.dpad_up) {
+            intakeServo.setPosition(0.2);
             target = 56;
             newTarget = 56;
          } else if (gamepad2.a) {
@@ -176,14 +177,14 @@ public class TeleForProvincials extends LinearOpMode{
          }
          else if (gamepad2.right_trigger > 0) { //opening when it shoudlnt be, right motor not running
             // in// down to pick up
-            intakeServo.setPosition(0.5); // this is changed so it will ideally not jam
+            intakeServo.setPosition(0.4); // this is changed so it will ideally not jam
             intakeLeft.setPower(1);
             intakeRight.setPower(1);
             target = 2;
          }
 
          else {
-            intakeServo.setPosition(0.5);
+            intakeServo.setPosition(0.4);
             intakeRight.setPower(0);
             intakeLeft.setPower(0);
          }
@@ -230,30 +231,31 @@ public class TeleForProvincials extends LinearOpMode{
                waitFor(800);
                setArmTarget(138);
                runArmPID();
-               fullExtension();
-               waitFor(2500);
+              // fullExtension();
+               //waitFor(2500);
                climbServo.setPosition(0.275);
                stopExtension();
-               waitFor(200);
+               waitFor(100);
                firstAscent(); // get it to pull up a bit farther so that the hook can get over
                climbHook.setPower(0.2);
-               setArmTarget(142);
-               runArmPID();
-               fullExtension();
-               waitFor(1000);
-               stopExtension();
-               retractToHook();
-               waitFor(2000);
-               stopExtension();
-               ClimbHookRelease();
-
-               setArmTarget(-23);
-               runArmPID();
-
-               fullRetraction();
-               waitFor(6000);
                holdPosition();
-               stop();
+               //setArmTarget(142);
+               //runArmPID();
+               //fullExtension();
+               //waitFor(1000);
+               // stopExtension();
+               // retractToHook();
+               //waitFor(2000);
+               //stopExtension();
+               //ClimbHookRelease();
+
+               //setArmTarget(-23);
+               //runArmPID();
+
+               //fullRetraction();
+              // waitFor(6000);
+              // holdPosition();
+               //stop();
             }
 
             else if (gamepad1.options){
@@ -378,7 +380,7 @@ public class TeleForProvincials extends LinearOpMode{
       double ff = Math.cos(Math.toRadians(armPos)) * f;
       double power = pidOutput + ff;
 
-      power = Math.max(-0.4, Math.min(1.0, power));
+      power = Math.max(-1.0, Math.min(1.0, power));
 
       armPivot.setPower(power);
 
@@ -400,7 +402,4 @@ public class TeleForProvincials extends LinearOpMode{
       runArmPID();
       telemetry.addData("Arm reached target", target);
    }
-
-
-
 }
